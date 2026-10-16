@@ -10,7 +10,9 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use anyhow::bail;
+use tauri::Manager;
 use tauri::ipc::Channel;
+use tauri_plugin_window_state::StateFlags;
 use tunelock_client::Client;
 use tunelock_core::LockMode;
 use tunelock_protocol::{CONTROL_SOCKET, Request, Response};
@@ -89,8 +91,21 @@ fn open_spotify_download() -> Result<(), String> {
 
 fn main() {
     tauri::Builder::default()
-        // Opens centered the first time, then where the user left it.
-        .plugin(tauri_plugin_window_state::Builder::default().build())
+        // Opens centered the first time, then where the user left it. The
+        // window starts hidden and is shown once it's in place, so it doesn't
+        // jump from the center to its saved position.
+        .plugin(
+            tauri_plugin_window_state::Builder::default()
+                .with_state_flags(StateFlags::all() - StateFlags::VISIBLE)
+                .build(),
+        )
+        .setup(|app| {
+            if let Some(window) = app.get_webview_window("main") {
+                window.show()?;
+                window.set_focus()?;
+            }
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             request,
             setup_status,
