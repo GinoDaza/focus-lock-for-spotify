@@ -463,7 +463,10 @@ mod tests {
             local("08:00"),
         );
 
-        assert!(engine.tick(Duration::ZERO, t0(), local("08:59")).is_empty());
+        assert_eq!(
+            engine.tick(Duration::ZERO, t0(), local("08:59")),
+            Vec::<Event>::new()
+        );
         assert_eq!(
             engine.tick(Duration::ZERO, t0(), local("10:00")),
             vec![Event::Started]
@@ -491,7 +494,10 @@ mod tests {
             engine.handle(Request::Cancel, local("10:05")),
             Response::Done
         );
-        assert!(engine.tick(Duration::ZERO, t0(), local("10:10")).is_empty());
+        assert_eq!(
+            engine.tick(Duration::ZERO, t0(), local("10:10")),
+            Vec::<Event>::new()
+        );
         assert!(!engine.is_active());
     }
 

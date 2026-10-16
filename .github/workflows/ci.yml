@@ -80,6 +80,13 @@ jobs:
         run: |
           (cd extension && pnpm install --frozen-lockfile && pnpm build)
           (cd apps/desktop && pnpm install --frozen-lockfile && pnpm build)
+      # The desktop build script checks that the files the installer bundles
+      # exist. Empty placeholders are enough for clippy and the tests.
+      - name: Create placeholders for the bundled executables
+        shell: bash
+        run: |
+          mkdir -p target/x86_64-pc-windows-msvc/release
+          touch target/x86_64-pc-windows-msvc/release/tunelock-service.exe target/x86_64-pc-windows-msvc/release/tunelock.exe
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy
