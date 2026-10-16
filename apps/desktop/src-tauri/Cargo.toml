@@ -16,7 +16,6 @@ tauri-build = { version = "2.7.3", features = [] }
 [dependencies]
 anyhow.workspace = true
 tauri = { version = "2.12.4", features = [] }
-tauri-plugin-window-state = "2.5.0"
 tunelock-client.workspace = true
 tunelock-core.workspace = true
 tunelock-protocol.workspace = true
