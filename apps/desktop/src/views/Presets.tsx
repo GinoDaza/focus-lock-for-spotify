@@ -17,7 +17,7 @@ export function PresetsView({
   const [presets, setPresets] = useState<Preset[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [name, setName] = useState("");
-  const [parts, setParts] = useState<DurationParts>({ days: 0, hours: 2, minutes: 0 });
+  const [parts, setParts] = useState<DurationParts>({ days: 0, hours: 0, minutes: 3 });
   const [mode, setMode] = useState<LockMode>("flexible");
   const [confirming, setConfirming] = useState<Preset | null>(null);
   const action = useAction();
