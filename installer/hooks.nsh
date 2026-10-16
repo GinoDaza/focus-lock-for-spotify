@@ -3,6 +3,8 @@
 ; `uninstall` commands. `uninstall` refuses while a locked session runs,
 ; which stops both updates and uninstalls until the session ends.
 ; Spicetify and the extension are set up per user by the app (ADR 0007).
+; Hooks run inside the Tauri template, which defines $UpdateMode and
+; $DeleteAppDataCheckboxState.
 
 !macro NSIS_HOOK_PREINSTALL
   ; Updating: stop and remove the old service so its files can be replaced.
@@ -30,4 +32,16 @@
     MessageBox MB_ICONSTOP "Tunelock can't be uninstalled right now. If a locked session is running, try again after it ends." /SD IDOK
     Abort
   tunelock_preuninstall_done:
+!macroend
+
+!macro NSIS_HOOK_POSTUNINSTALL
+  ; "Delete the application data" also removes the service's data
+  ; (allowlist, presets, schedules, log) in C:\ProgramData\Tunelock.
+  ; Reaching this point means no locked session was running.
+  ${If} $DeleteAppDataCheckboxState = 1
+  ${AndIf} $UpdateMode <> 1
+    SetShellVarContext all
+    RMDir /r "$APPDATA\Tunelock"
+    SetShellVarContext current
+  ${EndIf}
 !macroend

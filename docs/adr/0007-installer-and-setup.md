@@ -20,6 +20,8 @@ The user should not need a terminal for either half.
 - after installing, `tunelock-service install`;
 - before uninstalling, `tunelock-service uninstall`.
 
+When the user ticks "Delete the application data" in the uninstaller, the service's data in `C:\ProgramData\Tunelock` (allowlist, presets, schedules, log) is removed as well; updates never remove it.
+
 `uninstall` refuses while a locked session runs. Updates and uninstalls therefore stop until the session ends, and the installer says so. `uninstall` succeeds when the service is not installed, so a repair or a first install over leftover files works. The installer doesn't touch Spotify or Spicetify.
 
 **First-run setup in the app.** The `tunelock-setup` crate, used by the app as the logged-on user, checks three steps and fixes what is missing:
