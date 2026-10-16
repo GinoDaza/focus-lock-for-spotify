@@ -5,7 +5,7 @@
 
 ## Context
 
-The plan (ADR 0001) called for a Tauri v2 app with a tray icon and a countdown. Before building it we checked what it costs. The service uses about 13 MB of RAM and Spotify about 650 MB. A WebView2 window adds roughly 50–80 MB while it is open. A tray icon would keep the app resident all the time.
+The plan (ADR 0001) called for a Tauri v2 app with a tray icon and a countdown. Before building it we checked what it costs. The service uses about 13 MB of RAM and Spotify about 650 MB. Measured on Windows, the app window uses about 145 MB of private memory across its WebView2 processes while it is open. A tray icon would keep the app resident all the time.
 
 Sessions live in the service. The app only reads the state and sends requests, so it does not need to run for a lock to hold.
 
