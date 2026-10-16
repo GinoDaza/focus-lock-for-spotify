@@ -10,6 +10,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use anyhow::bail;
+use tauri::Manager;
 use tauri::ipc::Channel;
 use tunelock_client::Client;
 use tunelock_core::LockMode;
@@ -89,6 +90,15 @@ fn open_spotify_download() -> Result<(), String> {
 
 fn main() {
     tauri::Builder::default()
+        // A second launch brings the open window to the front instead.
+        // Registered first, as the plugin requires.
+        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.unminimize();
+                let _ = window.show();
+                let _ = window.set_focus();
+            }
+        }))
         .invoke_handler(tauri::generate_handler![
             request,
             setup_status,
