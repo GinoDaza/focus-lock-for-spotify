@@ -48,6 +48,7 @@ async fn state(State(app): State<App>) -> Json<ExtensionState> {
 }
 
 async fn heartbeat(State(app): State<App>) -> StatusCode {
+    tracing::debug!("extension heartbeat");
     app.record_heartbeat();
     StatusCode::NO_CONTENT
 }
