@@ -1,0 +1,23 @@
+[package]
+name = "tunelock-desktop"
+description = "Desktop app for Tunelock: a thin frontend over the service."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "tunelock-app"
+path = "src/main.rs"
+
+[build-dependencies]
+tauri-build = { version = "2.7.3", features = [] }
+
+[dependencies]
+anyhow.workspace = true
+tauri = { version = "2.12.4", features = [] }
+tunelock-client.workspace = true
+tunelock-protocol.workspace = true
+
+[lints]
+workspace = true

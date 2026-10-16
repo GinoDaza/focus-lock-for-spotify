@@ -19,7 +19,7 @@ Goal: an **open-source (GPL-3.0), free project called Tunelock** with a solid ar
 | Core + service | **Rust**, `windows-service` crate, `tokio` | Small native binary, no runtime. `windows-service` is the standard crate for Win32 services. |
 | Service ↔ UI IPC | Named pipe (`interprocess`) with an ACL + typed JSON protocol (`serde`) | The standard Windows mechanism between a service and a user app. The ACL controls who can send commands. |
 | Persistence | ~~SQLite~~ JSON file in `%ProgramData%\Tunelock`, ACL for SYSTEM/Admin only | Sessions, presets, schedules. Atomic writes. See ADR 0002. |
-| Desktop UI | **Tauri v2** + React + TypeScript + Vite, with a tray icon | Today's standard for Rust desktop apps. Reuses the protocol types. |
+| Desktop UI | **Tauri v2** + React + TypeScript + Vite (no tray in v0.1, ADR 0006) | Today's standard for Rust desktop apps. Reuses the protocol types. |
 | Spotify extension | TypeScript bundled with **esbuild** into a single Spicetify `.js` | Spicetify extensions are a single JS file (official docs). |
 | Installer | Tauri's NSIS bundler (`perMachine`) + `installer_hooks` (.nsh) | NSIS hooks install and remove the service. |
 | CI/CD | GitHub Actions `windows-latest`. Signing through SignPath Foundation (free for OSS; requires a published release and an automated build) | Standard for OSS on Windows. |
@@ -68,8 +68,8 @@ tunelock/
 - Without an active session, the extension does nothing and Spotify works normally.
 
 ### UI (`apps/desktop`)
-- Tray icon with the status and a countdown.
-- Screens: Home (start a flexible or locked session, in hours or days), Presets, Allowed playlists (paste the "Copy link" URL and extract the ID), Settings.
+- ~~Tray icon with the status and a countdown.~~ Dropped for v0.1: the app is a stateless window (ADR 0006).
+- Screens: Session (start a flexible or locked session in days, hours and minutes; countdown and extend while one runs), Playlists (paste the "Copy link" URL and extract the ID), Presets.
 - A strong confirmation before a `Locked` session ("you won't be able to cancel it until…").
 - Closing the UI does not end the session (it lives in the service).
 
@@ -87,7 +87,7 @@ tunelock/
 - **M1, core + service + CLI:** state machine, persistence, IPC, and `tunelock start 2h --locked` working end to end.
 - **M2, extension:** guards, cosmetic CSS, connection to the service.
 - **M3, Windows integration:** real Windows service, pipe ACL, protected data directory, resume-from-sleep handling, `SpotifyEnforcer` (re-apply Spicetify, fail-closed watchdog, ACLs, update detection).
-- **M4, Tauri UI:** tray, start a session, presets, allowlist.
+- **M4, Tauri UI:** start a session, presets, allowlist. The tray icon was dropped for v0.1 (ADR 0006).
 - **M5, release v0.1:** NSIS installer with service hooks, CI (fmt, clippy, tests, build), GitHub release. Then apply to SignPath.
 - **v0.2:** schedule UI, session history, multiple profiles.
 

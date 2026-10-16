@@ -1,0 +1,391 @@
+:root {
+  color-scheme: light dark;
+  --bg: #f6f6f8;
+  --surface: #ffffff;
+  --border: #dedee4;
+  --text: #17171c;
+  --muted: #6b6b76;
+  --accent: #4f46e5;
+  --accent-text: #ffffff;
+  --danger: #c2410c;
+  --danger-text: #ffffff;
+  --locked: #c2410c;
+  --active: #15803d;
+  --radius: 10px;
+  font-family: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #131317;
+    --surface: #1c1c22;
+    --border: #2e2e37;
+    --text: #ececf1;
+    --muted: #9a9aa6;
+    --accent: #818cf8;
+    --accent-text: #0f0f14;
+    --danger: #fb923c;
+    --danger-text: #1a0d05;
+    --locked: #fb923c;
+    --active: #4ade80;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+h1,
+h2 {
+  margin: 0;
+}
+
+h1 {
+  font-size: 18px;
+}
+
+h2 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 16px 8px;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.tab {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 8px 10px;
+  color: var(--muted);
+}
+
+.tab.selected {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.content {
+  flex: 1;
+  padding: 16px;
+}
+
+.footer {
+  padding: 10px 16px;
+  font-size: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.row.wrap {
+  flex-wrap: wrap;
+}
+
+.row.end {
+  justify-content: flex-end;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 14px;
+}
+
+.countdown {
+  font-size: 44px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.progress {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.progress > div {
+  height: 100%;
+  background: var(--accent);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.pill {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+
+.pill.idle {
+  color: var(--muted);
+}
+
+.pill.flexible {
+  color: var(--active);
+}
+
+.pill.locked {
+  color: var(--locked);
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  padding: 8px 14px;
+  border: 1px solid transparent;
+  color: var(--text);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+button.primary {
+  background: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+button.secondary {
+  background: transparent;
+  border-color: var(--border);
+}
+
+button.danger {
+  background: var(--danger);
+  color: var(--danger-text);
+  font-weight: 600;
+}
+
+button.link {
+  background: none;
+  padding: 4px 6px;
+  color: var(--accent);
+}
+
+button.chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  background: transparent;
+  border-color: var(--border);
+}
+
+button.chip span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+input {
+  font: inherit;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+}
+
+input:focus,
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field > span,
+.duration span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.duration {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.duration label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.segmented button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  background: transparent;
+  border-color: var(--border);
+}
+
+.segmented button span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.segmented button[aria-checked="true"] {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.playlists,
+.presets {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.playlists li,
+.presets li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.playlists li:last-child,
+.presets li:last-child {
+  border-bottom: none;
+}
+
+.presets li > div:first-child {
+  display: flex;
+  flex-direction: column;
+}
+
+code {
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 12px;
+}
+
+.banner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.banner.error {
+  border-color: var(--danger);
+}
+
+.banner .link {
+  align-self: flex-start;
+  padding-left: 0;
+}
+
+.error-text {
+  margin: 0;
+  color: var(--danger);
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgb(0 0 0 / 0.5);
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 380px;
+  padding: 18px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.dialog h2 {
+  font-size: 16px;
+  color: var(--text);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.dialog p {
+  margin: 0;
+}

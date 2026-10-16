@@ -1,3 +1,6 @@
+//! Blocking client for the control channel of `tunelock-service`, shared by
+//! the CLI and the desktop app.
+
 use std::io::{BufRead, BufReader, Read, Write};
 
 use anyhow::{Context, bail};
@@ -14,6 +17,11 @@ pub struct Client {
 }
 
 impl Client {
+    /// Connects to the control socket `name`, usually
+    /// [`tunelock_protocol::CONTROL_SOCKET`].
+    ///
+    /// # Errors
+    /// If the service is not running or the name is invalid.
     pub fn connect(name: &str) -> anyhow::Result<Self> {
         let name = name.to_ns_name::<GenericNamespaced>()?;
         let stream = Stream::connect(name)
@@ -23,6 +31,11 @@ impl Client {
         })
     }
 
+    /// Sends one request and waits for its response. A [`Response::Error`]
+    /// becomes an `Err` with the service's message.
+    ///
+    /// # Errors
+    /// On I/O errors, malformed responses or an error from the service.
     pub fn send(&mut self, request: &Request) -> anyhow::Result<Response> {
         self.stream
             .get_mut()
@@ -41,6 +54,9 @@ impl Client {
     }
 
     /// Sends a request that only acknowledges with `Done`.
+    ///
+    /// # Errors
+    /// As [`Client::send`], or if the response is not `Done`.
     pub fn done(&mut self, request: &Request) -> anyhow::Result<()> {
         match self.send(request)? {
             Response::Done => Ok(()),
@@ -48,19 +64,25 @@ impl Client {
         }
     }
 
+    /// # Errors
+    /// As [`Client::send`], or if the service speaks another protocol version.
     pub fn status(&mut self) -> anyhow::Result<Status> {
         let Response::Status(status) = self.send(&Request::Status)? else {
             bail!("unexpected response");
         };
         if status.protocol_version != PROTOCOL_VERSION {
             bail!(
-                "service protocol v{} does not match this CLI (v{PROTOCOL_VERSION}); update both",
+                "service protocol v{} does not match this client (v{PROTOCOL_VERSION}); update both",
                 status.protocol_version
             );
         }
         Ok(status)
     }
 
+    /// The saved allowlist, if any.
+    ///
+    /// # Errors
+    /// As [`Client::send`].
     pub fn allowlist(&mut self) -> anyhow::Result<Option<Allowlist>> {
         let Response::Allowlist { allowlist } = self.send(&Request::GetAllowlist)? else {
             bail!("unexpected response");

@@ -1,6 +1,5 @@
 //! `tunelock`: command-line client for the Tunelock service.
 
-mod client;
 mod duration;
 
 use std::io::{BufRead, Write};
@@ -9,10 +8,10 @@ use std::time::Duration;
 use anyhow::{Context, bail};
 use chrono::{NaiveTime, Weekday};
 use clap::{Parser, Subcommand};
+use tunelock_client::Client;
 use tunelock_core::{Allowlist, LockMode, PlaylistId, Preset, Schedule, format_duration};
 use tunelock_protocol::{CONTROL_SOCKET, Request, Response, SessionInfo};
 
-use crate::client::Client;
 use crate::duration::parse_duration;
 
 #[derive(Parser)]

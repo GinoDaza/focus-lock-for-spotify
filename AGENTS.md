@@ -13,7 +13,9 @@ Tunelock is a Cold Turkey-style focus lock for the **Spotify desktop app on Wind
 | `crates/core` | Pure domain model: `PlaylistId`/`Allowlist`, `Session`/`LockState` state machine, `Preset`, `Schedule`. No I/O. Time advances only via `LockState::advance`. |
 | `crates/protocol` | Wire types. The control channel is line-delimited JSON over the local socket `tunelock` (named pipe on Windows). The extension channel is `ExtensionState` over loopback HTTP on port 39817. |
 | `crates/service` | `tunelock-service`: `engine.rs` (requests and time policy), `store.rs` (atomic JSON file), `control.rs` (socket server), `extension.rs` (axum: `GET /v1/state`, `POST /v1/heartbeat`), `app.rs` (shared state and 5 s ticker), `enforcer.rs` (fail-closed Spotify watchdog), `spicetify.rs` (re-apply Spicetify, protect its folders during locked sessions), `sddl.rs` (pure DACL edits), `windows/` (SCM service, ACLs, console user token/folders/processes; `acl.rs` and `user.rs` are the only `unsafe` code). |
+| `crates/client` | Blocking control-channel client shared by the CLI and the desktop app. |
 | `crates/cli` | `tunelock` CLI (status/start/cancel/extend/harden/allowlist/preset/schedule). |
+| `apps/desktop` | Tauri v2 app (`tunelock-app.exe`): a stateless React frontend. `src-tauri` exposes one command, `request`, that forwards a protocol `Request` to the service. `src/protocol.ts` mirrors the Rust types by hand. No tray (ADR 0006). |
 | `extension/` | Spicetify extension in TypeScript, bundled by esbuild to `dist/tunelock.js`. **All Spotify-specific selectors and routes live in `src/compat.ts`.** |
 | `spikes/` | Throwaway experiments (`tunelock-spike.js` proved extension → localhost works). |
 | `docs/` | `plan.md` (approved plan), ADRs, `idea.md` (original note) and `research.md` (prior art). |
@@ -24,6 +26,8 @@ Tunelock is a Cold Turkey-style focus lock for the **Spotify desktop app on Wind
 cargo fmt && cargo clippy --all-targets -- -D warnings && cargo test   # Rust (clippy pedantic)
 cd extension && pnpm typecheck && pnpm test && pnpm build             # extension
 SPICETIFY_EXTENSIONS_DIR=<dir> pnpm build                               # build + copy into Spicetify
+cd apps/desktop && pnpm typecheck && pnpm test && pnpm build           # desktop frontend (build before the Rust crate)
+cargo xwin build -p tunelock-desktop --release --target x86_64-pc-windows-msvc   # desktop app (needs llvm-rc)
 cargo run -p tunelock-service -- run --data-dir <dir>                   # service in foreground
 cargo run -p tunelock-cli -- status                                     # CLI
 cargo xwin build -p tunelock-service -p tunelock-cli --target x86_64-pc-windows-msvc   # Windows build

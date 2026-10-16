@@ -21,7 +21,7 @@ Website and app blockers can block Spotify entirely, but none of them let you ke
 
 - `tunelock-service` is a Windows service written in Rust. It owns the session state and the timer.
 - A [Spicetify](https://spicetify.app) extension restricts the Spotify desktop client while a session is active.
-- A desktop app built with Tauri provides the UI and a tray icon.
+- A desktop app built with Tauri provides the UI. Closing it does not end a session.
 
 See [`docs/plan.md`](docs/plan.md) and [`docs/adr/`](docs/adr/) for the design.
 

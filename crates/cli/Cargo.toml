@@ -14,7 +14,7 @@ path = "src/main.rs"
 anyhow.workspace = true
 chrono.workspace = true
 clap.workspace = true
-interprocess.workspace = true
+tunelock-client.workspace = true
 tunelock-core.workspace = true
 tunelock-protocol.workspace = true
 
