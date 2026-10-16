@@ -27,7 +27,7 @@ cargo fmt && cargo clippy --all-targets -- -D warnings && cargo test   # Rust (c
 cd extension && pnpm typecheck && pnpm test && pnpm build             # extension
 SPICETIFY_EXTENSIONS_DIR=<dir> pnpm build                               # build + copy into Spicetify
 cd apps/desktop && pnpm typecheck && pnpm test && pnpm build           # desktop frontend (build before the Rust crate)
-cargo xwin build -p tunelock-desktop --release --target x86_64-pc-windows-msvc   # desktop app (needs llvm-rc)
+cargo xwin build -p tunelock-desktop --release --features tauri/custom-protocol --target x86_64-pc-windows-msvc   # desktop app; without the feature it loads the dev server
 cargo run -p tunelock-service -- run --data-dir <dir>                   # service in foreground
 cargo run -p tunelock-cli -- status                                     # CLI
 cargo xwin build -p tunelock-service -p tunelock-cli --target x86_64-pc-windows-msvc   # Windows build
