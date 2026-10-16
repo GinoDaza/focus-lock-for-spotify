@@ -617,10 +617,13 @@ input[aria-invalid="true"] {
 }
 
 .numberbox input {
-  width: 68px;
-  padding-right: 24px;
+  width: 84px;
+  padding-right: 42px;
   font-variant-numeric: tabular-nums;
-  -moz-appearance: textfield;
+}
+
+.numberbox input:focus {
+  padding-right: 42px;
 }
 
 .numberbox input::-webkit-inner-spin-button,
@@ -631,10 +634,45 @@ input[aria-invalid="true"] {
 
 .numberbox .unit {
   position: absolute;
-  right: 10px;
+  right: 28px;
   top: 6px;
   color: var(--text-3);
   pointer-events: none;
+}
+
+/* Inline spin buttons, stacked at the right edge of the box. */
+.numberbox .spin {
+  position: absolute;
+  right: 3px;
+  top: 3px;
+  bottom: 3px;
+  display: flex;
+  flex-direction: column;
+}
+
+.numberbox .spin button {
+  flex: 1;
+  width: 20px;
+  min-height: 0;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--text-2);
+}
+
+.numberbox .spin button:hover:not(:disabled) {
+  background: var(--subtle-hover);
+}
+
+.numberbox .spin button:active:not(:disabled) {
+  background: var(--subtle-pressed);
+}
+
+.numberbox .spin .icon {
+  font-size: 8px;
+  width: 8px;
+  height: 8px;
 }
 
 /* RadioButtons. */

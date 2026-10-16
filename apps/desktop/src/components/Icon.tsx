@@ -2,19 +2,21 @@
 // (Windows 10) as fallback: both ship with Windows and share code points.
 
 const GLYPHS = {
-  add: "",
-  cancel: "",
-  clock: "",
-  delete: "",
-  error: "",
-  info: "",
-  lock: "",
-  music: "",
-  play: "",
-  presets: "",
-  stopwatch: "",
-  success: "",
-  warning: "",
+  add: "\uE710",
+  cancel: "\uE711",
+  chevronDown: "\uE70D",
+  chevronUp: "\uE70E",
+  clock: "\uE823",
+  delete: "\uE74D",
+  error: "\uE783",
+  info: "\uE946",
+  lock: "\uE72E",
+  music: "\uE8D6",
+  play: "\uE768",
+  presets: "\uE8A4",
+  stopwatch: "\uE916",
+  success: "\uE930",
+  warning: "\uE7BA",
 } as const;
 
 export type IconName = keyof typeof GLYPHS;
