@@ -21,3 +21,7 @@ Thumbs.db
 # Local env
 .env
 .env.*
+
+# Local agent config (AGENTS.md is the shared guide)
+CLAUDE.md
+CLAUDE.local.md
