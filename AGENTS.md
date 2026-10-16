@@ -63,6 +63,6 @@ Done and verified end-to-end on the user's machine (Spotify 1.3.5.3058, Windows,
 - Implemented, verified only when Spotify next updates: re-applying Spicetify (`spicetify -q -n backup apply` as the console user). Check `C:\ProgramData\Tunelock\service.log`.
 - To update the installed service: stop it outside a session, replace `C:\Program Files\Tunelock\tunelock-service.exe`, start it (elevated prompt; the user does it).
 
-**M4 (Tauri UI), done:** `apps/desktop`, verified on the user's machine against the installed service (ADR 0006). The exe is staged at `C:\Users\ginoD\Downloads\tunelock\tunelock-app.exe` and isn't installed yet.
+**M4 (Tauri UI), done:** `apps/desktop`, verified on the user's machine against the installed service (ADR 0006).
 
-**M5 (installer and first-run setup), in progress** (ADR 0007): the NSIS installer and the app's Setup page are built and tested; the install on the user's machine is still to be verified. CI, the release and SignPath wait until the user decides to publish. The repo stays private until then.
+**M5 (installer and first-run setup), in progress** (ADR 0007): the NSIS installer and the app's Setup page are built and tested; the install on the user's machine is still to be verified. The repo is public (github.com/GinoDaza/tunelock). CI, the first release and SignPath are still to do. Naming is in ADR 0008.
