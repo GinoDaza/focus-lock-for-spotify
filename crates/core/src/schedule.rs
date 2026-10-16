@@ -81,6 +81,21 @@ impl Schedule {
         self.mode
     }
 
+    #[must_use]
+    pub fn days(&self) -> &[Weekday] {
+        &self.days
+    }
+
+    #[must_use]
+    pub fn start(&self) -> NaiveTime {
+        self.start
+    }
+
+    #[must_use]
+    pub fn end(&self) -> NaiveTime {
+        self.end
+    }
+
     /// The window (start, end) that begins on `date`, if `date` is a scheduled day.
     fn window_on(&self, date: chrono::NaiveDate) -> Option<(NaiveDateTime, NaiveDateTime)> {
         if !self.days.contains(&date.weekday()) {

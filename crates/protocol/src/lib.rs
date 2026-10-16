@@ -1,7 +1,7 @@
 //! Wire protocol between `tunelock-service` and its clients.
 //!
 //! Two channels exist:
-//! - **Control** (named pipe [`PIPE_NAME`]): the desktop app and the CLI
+//! - **Control** (local socket [`CONTROL_SOCKET`]): the desktop app and the CLI
 //!   send [`Request`]s and receive [`Response`]s, one JSON object per line.
 //! - **Extension** (read-only, loopback only): the Spotify extension polls
 //!   [`ExtensionState`]. Nothing on this channel can weaken a session.
@@ -19,8 +19,9 @@ use tunelock_core::{
 /// Bumped on any breaking change to the types in this crate.
 pub const PROTOCOL_VERSION: u32 = 1;
 
-/// Named pipe of the control channel.
-pub const PIPE_NAME: &str = r"\\.\pipe\tunelock";
+/// Namespaced local-socket name of the control channel: the named pipe
+/// `\\.\pipe\tunelock` on Windows, an abstract socket on Linux.
+pub const CONTROL_SOCKET: &str = "tunelock";
 
 /// Loopback port of the extension channel.
 pub const EXTENSION_PORT: u16 = 39_817;

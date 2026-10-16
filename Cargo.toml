@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/core", "crates/protocol"]
+members = ["crates/*"]
 
 [workspace.package]
 version = "0.1.0"
@@ -9,11 +9,21 @@ license = "GPL-3.0-only"
 repository = "https://github.com/OWNER/tunelock"
 
 [workspace.dependencies]
+anyhow = "1.0.104"
+axum = "0.8.9"
 chrono = { version = "0.4", default-features = false, features = ["std", "serde"] }
+clap = { version = "4.6.7", features = ["derive", "env"] }
+interprocess = { version = "2.4.6", features = ["tokio"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+tempfile = "3.27.0"
 thiserror = "2"
+tokio = { version = "1.53.3", features = ["rt-multi-thread", "macros", "net", "time", "sync", "io-util", "signal"] }
+tower-http = { version = "0.7.1", features = ["cors"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 tunelock-core = { path = "crates/core" }
+tunelock-protocol = { path = "crates/protocol" }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"
