@@ -1,5 +1,11 @@
 # Plan: Tunelock — candado de enfoque para Spotify de escritorio (Windows)
 
+> **Estado (2026-10-16):** M0, M1 y M2 hechos; sigue M3. En la implementación hubo dos cambios respecto a este plan:
+> - La persistencia es un archivo JSON en lugar de SQLite (ADR 0002).
+> - La extensión no usa un overlay propio: aplica guardias de navegación y de reproducción más CSS estético (ADR 0003).
+>
+> El estado actual del proyecto está en `AGENTS.md`.
+
 ## Contexto
 
 La música que distrae (phonk, etc.) rompe la concentración al estudiar o programar. Investigamos (nosotros y agy, ver `investigacion-agy.md`) y **no existe** una herramienta que reduzca la app de escritorio de Spotify a unas pocas playlists con un candado por tiempo estilo Cold Turkey. Los bloqueadores existentes bloquean apps o webs enteras; ninguno permite "deja la app, pero solo este contenido".
