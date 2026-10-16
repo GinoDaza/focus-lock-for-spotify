@@ -89,6 +89,8 @@ fn open_spotify_download() -> Result<(), String> {
 
 fn main() {
     tauri::Builder::default()
+        // Opens centered the first time, then where the user left it.
+        .plugin(tauri_plugin_window_state::Builder::default().build())
         .invoke_handler(tauri::generate_handler![
             request,
             setup_status,
