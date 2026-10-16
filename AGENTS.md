@@ -65,4 +65,4 @@ Done and verified end-to-end on the user's machine (Spotify 1.3.5.3058, Windows,
 
 **M4 (Tauri UI), done:** `apps/desktop`, verified on the user's machine against the installed service (ADR 0006).
 
-**M5 (installer and first-run setup), in progress** (ADR 0007): the NSIS installer and the app's Setup page are built and tested; the install on the user's machine is still to be verified. The repo is public (github.com/GinoDaza/tunelock). CI, the first release and SignPath are still to do. Naming is in ADR 0008.
+**M5 (installer and first-run setup), in progress** (ADR 0007): the NSIS installer and the app's Setup page are built and tested; the install on the user's machine is still to be verified. The repo is public (github.com/GinoDaza/tunelock). CI and the release workflow are in `.github/workflows` (ADR 0009) but haven't run on GitHub yet. The first release and SignPath are still to do. Naming is in ADR 0008.

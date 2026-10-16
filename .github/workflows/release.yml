@@ -1,0 +1,59 @@
+name: Release
+
+# Runs when a version tag such as v0.1.0 is pushed. It builds the Windows
+# installer and attaches it to a draft release for review.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  installer:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Check that the tag matches the crate version
+        shell: bash
+        run: |
+          version=$(grep -m1 '^version' Cargo.toml | cut -d '"' -f2)
+          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+            echo "Tag $GITHUB_REF_NAME doesn't match the version $version in Cargo.toml" >&2
+            exit 1
+          fi
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: |
+            extension/pnpm-lock.yaml
+            apps/desktop/pnpm-lock.yaml
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+      - uses: Swatinem/rust-cache@v2
+
+      # The app embeds the extension, and the installer ships the service and CLI.
+      - name: Build the extension, the service and the CLI
+        shell: bash
+        run: |
+          (cd extension && pnpm install --frozen-lockfile && pnpm build)
+          cargo build --release --locked --target x86_64-pc-windows-msvc -p tunelock-service -p tunelock-cli
+          (cd apps/desktop && pnpm install --frozen-lockfile)
+
+      - uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: apps/desktop
+          tagName: ${{ github.ref_name }}
+          releaseName: Tunelock ${{ github.ref_name }}
+          releaseBody: See the assets below to download the installer.
+          releaseDraft: true
+          args: --target x86_64-pc-windows-msvc
