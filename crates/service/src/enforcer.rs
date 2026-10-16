@@ -27,6 +27,7 @@ pub const STALE_AFTER: Duration = Duration::from_mins(2);
 #[derive(Debug, Clone, Copy)]
 pub struct Context {
     pub active: bool,
+    pub locked: bool,
     pub last_heartbeat: Option<Instant>,
     pub now: Instant,
 }
@@ -36,18 +37,38 @@ pub trait Enforcer: Send {
 }
 
 /// Runs the enforcers every [`CHECK_PERIOD`]. Runs forever.
+///
+/// Checks may block (applying Spicetify takes seconds), so they run on the
+/// blocking thread pool.
 pub async fn run(app: App, mut enforcers: Vec<Box<dyn Enforcer>>) {
     let mut interval = tokio::time::interval(CHECK_PERIOD);
     interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Delay);
     loop {
         interval.tick().await;
-        let context = Context {
-            active: app.engine().is_active(),
-            last_heartbeat: app.last_heartbeat().map(tokio::time::Instant::into_std),
-            now: Instant::now(),
+        let context = {
+            let engine = app.engine();
+            Context {
+                active: engine.is_active(),
+                locked: engine.is_locked(),
+                last_heartbeat: app.last_heartbeat().map(tokio::time::Instant::into_std),
+                now: Instant::now(),
+            }
         };
-        for enforcer in &mut enforcers {
-            enforcer.check(&context);
+        let checked = tokio::task::spawn_blocking(move || {
+            for enforcer in &mut enforcers {
+                enforcer.check(&context);
+            }
+            enforcers
+        })
+        .await;
+        match checked {
+            Ok(back) => enforcers = back,
+            Err(error) => {
+                // The enforcers were lost with the panic. Ending here stops
+                // the service, and Windows restarts it with fresh ones.
+                tracing::error!("enforcer check panicked: {error}");
+                return;
+            }
         }
     }
 }
@@ -186,6 +207,7 @@ mod tests {
     fn at(start: Instant, secs: u64, heartbeat: Option<u64>) -> Context {
         Context {
             active: true,
+            locked: true,
             last_heartbeat: heartbeat.map(|s| start + Duration::from_secs(s)),
             now: start + Duration::from_secs(secs),
         }

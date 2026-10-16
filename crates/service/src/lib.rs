@@ -6,6 +6,8 @@ pub mod control;
 pub mod enforcer;
 pub mod engine;
 pub mod extension;
+pub mod sddl;
+pub mod spicetify;
 pub mod store;
 #[cfg(windows)]
 pub mod windows;
@@ -35,6 +37,7 @@ pub struct Options {
 /// A service with its channels bound, ready to run.
 pub struct Service {
     app: App,
+    system: bool,
     control: Listener,
     extension: TcpListener,
 }
@@ -60,6 +63,7 @@ impl Service {
         );
         Ok(Self {
             app,
+            system: options.system,
             control,
             extension,
         })
@@ -78,11 +82,11 @@ impl Service {
     pub async fn run(self, shutdown: impl Future<Output = ()>) -> anyhow::Result<()> {
         let Self {
             app,
+            system,
             control,
             extension,
         } = self;
-        let enforcers: Vec<Box<dyn enforcer::Enforcer>> =
-            vec![Box::new(SpotifyEnforcer::new(SystemProcesses::new()))];
+        let enforcers = enforcers(system);
         tokio::select! {
             () = app::run_ticker(app.clone()) => {}
             () = enforcer::run(app.clone(), enforcers) => {}
@@ -92,6 +96,22 @@ impl Service {
         }
         Ok(())
     }
+}
+
+fn enforcers(system: bool) -> Vec<Box<dyn enforcer::Enforcer>> {
+    let mut enforcers: Vec<Box<dyn enforcer::Enforcer>> =
+        vec![Box::new(SpotifyEnforcer::new(SystemProcesses::new()))];
+    // Protecting the user's files and applying Spicetify as the user need
+    // the service's LocalSystem rights.
+    #[cfg(windows)]
+    if system {
+        enforcers.push(Box::new(spicetify::SpicetifyEnforcer::new(
+            windows::desktop::WindowsDesktop,
+        )));
+    }
+    #[cfg(not(windows))]
+    let _ = (system, &mut enforcers);
+    enforcers
 }
 
 /// Runs the service in the console until Ctrl-C.

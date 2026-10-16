@@ -12,7 +12,7 @@ Tunelock is a Cold Turkey-style focus lock for the **Spotify desktop app on Wind
 |---|---|
 | `crates/core` | Pure domain model: `PlaylistId`/`Allowlist`, `Session`/`LockState` state machine, `Preset`, `Schedule`. No I/O. Time advances only via `LockState::advance`. |
 | `crates/protocol` | Wire types. The control channel is line-delimited JSON over the local socket `tunelock` (named pipe on Windows). The extension channel is `ExtensionState` over loopback HTTP on port 39817. |
-| `crates/service` | `tunelock-service`: `engine.rs` (requests and time policy), `store.rs` (atomic JSON file), `control.rs` (socket server), `extension.rs` (axum: `GET /v1/state`, `POST /v1/heartbeat`), `app.rs` (shared state and 5 s ticker), `enforcer.rs` (fail-closed Spotify watchdog), `windows/` (SCM service, install/uninstall, ACLs; the only `unsafe` code). |
+| `crates/service` | `tunelock-service`: `engine.rs` (requests and time policy), `store.rs` (atomic JSON file), `control.rs` (socket server), `extension.rs` (axum: `GET /v1/state`, `POST /v1/heartbeat`), `app.rs` (shared state and 5 s ticker), `enforcer.rs` (fail-closed Spotify watchdog), `spicetify.rs` (re-apply Spicetify, protect its folders during locked sessions), `sddl.rs` (pure DACL edits), `windows/` (SCM service, ACLs, console user token/folders/processes; `acl.rs` and `user.rs` are the only `unsafe` code). |
 | `crates/cli` | `tunelock` CLI (status/start/cancel/extend/harden/allowlist/preset/schedule). |
 | `extension/` | Spicetify extension in TypeScript, bundled by esbuild to `dist/tunelock.js`. **All Spotify-specific selectors and routes live in `src/compat.ts`.** |
 | `spikes/` | Throwaway experiments (`tunelock-spike.js` proved extension → localhost works). |
@@ -32,7 +32,7 @@ cargo xwin clippy -p tunelock-service --all-targets --target x86_64-pc-windows-m
 
 Windows `.exe` files (including test binaries in `target/x86_64-pc-windows-msvc/debug/deps/`) run directly from WSL through interop. Installing the service needs an elevated prompt on Windows, so the user does it.
 
-The workspace lints forbid `unsafe` (`unsafe_code = "forbid"`). The service crate only denies it, so `src/windows/acl.rs` can opt in with `#![allow(unsafe_code)]`; keep Win32 FFI in modules like that one.
+The workspace lints forbid `unsafe` (`unsafe_code = "forbid"`). The service crate only denies it, so `src/windows/acl.rs` and `src/windows/user.rs` opt in with `#![allow(unsafe_code)]`; keep Win32 FFI in those modules and the logic in pure, tested ones.
 
 ## Rules
 
@@ -49,10 +49,9 @@ Done and verified end-to-end on the user's machine (Spotify 1.3.5.3058, Windows,
 - **M1:** core, protocol, service and CLI.
 - **M2:** extension. It redirects routes, pauses other contexts, hides search, home, browse, the bell and friend activity, and filters the library sidebar.
 
-**M3 (Windows integration), in progress** (see `docs/plan.md` and ADR 0004):
-- Done, compiled with `cargo xwin`, not yet tested as an installed service: `install`/`uninstall`/`service` subcommands (LocalSystem, auto-start, restart on failure); STOP not accepted and uninstall refused during a locked session; pipe security descriptor for interactive users; data directory ACL; resume-from-sleep handling; fail-closed watchdog that closes Spotify when the extension does not report in.
-- Next: the user installs from an elevated prompt and tests on Windows. Then:
-  1. Protect the Spicetify and extension files during locked sessions.
-  2. Re-apply Spicetify in the user's session after Spotify updates (`WTSQueryUserToken` + `CreateProcessAsUser`).
+**M3 (Windows integration), in progress** (see `docs/plan.md`, ADR 0004 and ADR 0005):
+- Installed and verified on the user's machine: Windows service (LocalSystem, auto-start, recovery), pipe access for interactive users, a 3-minute locked session with the extension reporting in.
+- Implemented, pending test on Windows: re-applying Spicetify after Spotify updates (`spicetify -q -n backup apply` as the console user) and protecting `%APPDATA%\Spotify\Apps` and both Spicetify folders during locked sessions.
+- To update the installed service: stop it outside a session, replace `C:\Program Files\Tunelock\tunelock-service.exe`, start it (elevated prompt; the user does it).
 
 After M3: M4 (Tauri UI), M5 (NSIS installer, CI, release, SignPath).
