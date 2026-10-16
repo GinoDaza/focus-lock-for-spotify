@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Icon, type IconName } from "./components/Icon";
 import { InfoBar } from "./components/Layout";
 import { formatCountdown } from "./format";
-import { useStatus } from "./hooks";
+import { useSetup, useStatus } from "./hooks";
+import { setupReady } from "./protocol";
 import { PlaylistsView } from "./views/Playlists";
 import { PresetsView } from "./views/Presets";
 import { SessionView } from "./views/Session";
+import { SetupView } from "./views/Setup";
 
-export type Tab = "session" | "playlists" | "presets";
+export type Tab = "session" | "playlists" | "presets" | "setup";
 
 const NAV: [Tab, string, IconName][] = [
   ["session", "Session", "clock"],
@@ -18,7 +20,30 @@ const NAV: [Tab, string, IconName][] = [
 export function App() {
   const live = useStatus();
   const [tab, setTab] = useState<Tab>("session");
+  const { setup, setSetup } = useSetup();
   const session = live.status?.session ?? null;
+  const needsSetup = setup !== null && !setupReady(setup);
+
+  // Open on Setup the first time it's needed, e.g. right after installing.
+  const sentToSetup = useRef(false);
+  useEffect(() => {
+    if (needsSetup && !sentToSetup.current) {
+      sentToSetup.current = true;
+      setTab("setup");
+    }
+  }, [needsSetup]);
+
+  const navItem = (id: Tab, label: string, icon: IconName, attention = false) => (
+    <button
+      className={tab === id ? "nav-item selected" : "nav-item"}
+      aria-current={tab === id ? "page" : undefined}
+      onClick={() => setTab(id)}
+    >
+      <Icon name={icon} />
+      {label}
+      {attention && <span className="dot" aria-label="needs attention" />}
+    </button>
+  );
 
   return (
     <div className="app">
@@ -29,18 +54,10 @@ export function App() {
         </div>
         <ul>
           {NAV.map(([id, label, icon]) => (
-            <li key={id}>
-              <button
-                className={tab === id ? "nav-item selected" : "nav-item"}
-                aria-current={tab === id ? "page" : undefined}
-                onClick={() => setTab(id)}
-              >
-                <Icon name={icon} />
-                {label}
-              </button>
-            </li>
+            <li key={id}>{navItem(id, label, icon)}</li>
           ))}
         </ul>
+        <div className="nav-bottom">{navItem("setup", "Setup", "settings", needsSetup)}</div>
         <div className="nav-status" aria-live="polite">
           {session ? (
             <>
@@ -68,12 +85,19 @@ export function App() {
             Make sure it's installed and running. <span className="tertiary-text">({live.error})</span>
           </InfoBar>
         )}
-        {live.status === null ? null : tab === "session" ? (
+        {tab === "setup" ? (
+          <SetupView
+            setup={setup}
+            locked={session?.mode === "locked"}
+            onChange={setSetup}
+          />
+        ) : live.status === null ? null : tab === "session" ? (
           <SessionView
             session={session}
             remaining={live.remaining}
             onChange={live.refresh}
             onNavigate={setTab}
+            needsSetup={needsSetup}
           />
         ) : tab === "playlists" ? (
           <PlaylistsView session={session} />

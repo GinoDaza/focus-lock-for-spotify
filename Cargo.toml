@@ -27,6 +27,7 @@ tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 tunelock-client = { path = "crates/client" }
 tunelock-core = { path = "crates/core" }
 tunelock-protocol = { path = "crates/protocol" }
+tunelock-setup = { path = "crates/setup" }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

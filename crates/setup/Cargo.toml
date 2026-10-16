@@ -1,0 +1,20 @@
+[package]
+name = "tunelock-setup"
+description = "First-run setup of the Spotify side of Tunelock: Spicetify and the extension."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+serde.workspace = true
+sha2 = "0.11.1"
+ureq = { version = "3.4.2", features = ["json"] }
+zip = { version = "9.0.4", default-features = false, features = ["deflate"] }
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

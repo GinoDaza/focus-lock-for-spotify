@@ -47,3 +47,15 @@ export type Response =
   | { type: "allowlist"; allowlist: Allowlist | null }
   | { type: "schedules"; schedules: unknown[] }
   | { type: "done" };
+
+// Setup of the Spotify side (`tunelock-setup`), not part of the service protocol.
+
+export interface SetupStatus {
+  spotify: "missing" | "store" | "ready";
+  spicetify: boolean;
+  extension: "missing" | "outdated" | "ready";
+}
+
+export function setupReady(s: SetupStatus): boolean {
+  return s.spotify === "ready" && s.spicetify && s.extension === "ready";
+}

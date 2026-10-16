@@ -1,7 +1,15 @@
 // Typed calls to the service through the Tauri backend's `request` command.
 
-import { invoke } from "@tauri-apps/api/core";
-import type { Allowlist, LockMode, Preset, Request, Response, Status } from "./protocol";
+import { Channel, invoke } from "@tauri-apps/api/core";
+import type {
+  Allowlist,
+  LockMode,
+  Preset,
+  Request,
+  Response,
+  SetupStatus,
+  Status,
+} from "./protocol";
 
 type Of<T extends Response["type"]> = Extract<Response, { type: T }>;
 
@@ -37,6 +45,13 @@ export const api = {
     return (await request({ type: "get_allowlist" }, "allowlist")).allowlist ?? [];
   },
   setAllowlist: (allowlist: Allowlist) => done({ type: "set_allowlist", allowlist }),
+  setupStatus: () => invoke<SetupStatus>("setup_status"),
+  runSetup(onProgress: (step: string) => void): Promise<SetupStatus> {
+    const channel = new Channel<string>();
+    channel.onmessage = onProgress;
+    return invoke<SetupStatus>("run_setup", { onProgress: channel });
+  },
+  openSpotifyDownload: () => invoke<void>("open_spotify_download"),
 };
 
 export function errorMessage(error: unknown): string {

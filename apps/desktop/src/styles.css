@@ -835,3 +835,67 @@ button:focus-visible,
     transition: width 1s linear;
   }
 }
+
+/* ---------- Setup ---------- */
+
+.nav-bottom {
+  margin-top: auto;
+}
+
+.nav-bottom + .nav-status {
+  margin-top: 0;
+}
+
+/* InfoBadge: a small attention dot. */
+.dot {
+  width: 6px;
+  height: 6px;
+  margin-left: auto;
+  border-radius: 50%;
+  background: var(--caution-fg);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-2);
+  min-width: 108px;
+}
+
+.badge.ready .icon {
+  color: var(--success-fg);
+}
+
+.badge.todo .icon {
+  color: var(--info-fg);
+}
+
+.badge.blocked .icon {
+  color: var(--critical-fg);
+}
+
+.progress-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ProgressRing, indeterminate. */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: var(--accent);
+  border-right-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

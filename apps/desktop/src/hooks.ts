@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { api, errorMessage } from "./api";
-import type { Status } from "./protocol";
+import type { SetupStatus, Status } from "./protocol";
 
 /** How often the open window re-reads the service; the countdown ticks locally. */
 const POLL_MS = 5_000;
@@ -74,4 +74,28 @@ export function useAction() {
     }
   }, []);
   return { busy, error, run, clearError: () => setError(null) };
+}
+
+/** The Spotify-side setup, re-checked whenever the window becomes visible. */
+export function useSetup() {
+  const [setup, setSetup] = useState<SetupStatus | null>(null);
+
+  const refresh = useCallback(async () => {
+    try {
+      setSetup(await api.setupStatus());
+    } catch {
+      // Purely informative; the Setup page shows what it can.
+    }
+  }, []);
+
+  useEffect(() => {
+    void refresh();
+    const onVisible = () => {
+      if (!document.hidden) void refresh();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [refresh]);
+
+  return { setup, setSetup };
 }

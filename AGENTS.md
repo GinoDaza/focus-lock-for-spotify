@@ -14,8 +14,11 @@ Tunelock is a Cold Turkey-style focus lock for the **Spotify desktop app on Wind
 | `crates/protocol` | Wire types. The control channel is line-delimited JSON over the local socket `tunelock` (named pipe on Windows). The extension channel is `ExtensionState` over loopback HTTP on port 39817. |
 | `crates/service` | `tunelock-service`: `engine.rs` (requests and time policy), `store.rs` (atomic JSON file), `control.rs` (socket server), `extension.rs` (axum: `GET /v1/state`, `POST /v1/heartbeat`), `app.rs` (shared state and 5 s ticker), `enforcer.rs` (fail-closed Spotify watchdog), `spicetify.rs` (re-apply Spicetify, protect its folders during locked sessions), `sddl.rs` (pure DACL edits), `windows/` (SCM service, ACLs, console user token/folders/processes; `acl.rs` and `user.rs` are the only `unsafe` code). |
 | `crates/client` | Blocking control-channel client shared by the CLI and the desktop app. |
+| `crates/setup` | First-run setup of the Spotify side, run by the app as the user: detects Spotify (and the Store build), installs the latest Spicetify from GitHub (SHA-256 checked), writes the embedded extension to `%APPDATA%\spicetify\Extensions` and applies it (ADR 0007). |
 | `crates/cli` | `tunelock` CLI (status/start/cancel/extend/harden/allowlist/preset/schedule). |
-| `apps/desktop` | Tauri v2 app (`tunelock-app.exe`): a stateless React frontend. `src-tauri` exposes one command, `request`, that forwards a protocol `Request` to the service. `src/protocol.ts` mirrors the Rust types by hand. No tray (ADR 0006). |
+| `apps/desktop` | Tauri v2 app (`tunelock-app.exe`): a stateless React frontend. `src-tauri` exposes one command, `request`, that forwards a protocol `Request` to the service. `src/protocol.ts` mirrors the Rust types by hand. No tray (ADR 0006). It embeds `extension/dist/tunelock.js`, so build the extension first. |
+| `installer/` | NSIS hooks: the installer registers and removes the service through `tunelock-service install/uninstall` (ADR 0007). |
+| `scripts/build-installer.sh` | Builds everything and the installer from WSL. |
 | `extension/` | Spicetify extension in TypeScript, bundled by esbuild to `dist/tunelock.js`. **All Spotify-specific selectors and routes live in `src/compat.ts`.** |
 | `spikes/` | Throwaway experiments (`tunelock-spike.js` proved extension → localhost works). |
 | `docs/` | `plan.md` (approved plan), ADRs, `idea.md` (original note) and `research.md` (prior art). |
@@ -28,6 +31,8 @@ cd extension && pnpm typecheck && pnpm test && pnpm build             # extensio
 SPICETIFY_EXTENSIONS_DIR=<dir> pnpm build                               # build + copy into Spicetify
 cd apps/desktop && pnpm typecheck && pnpm test && pnpm build           # desktop frontend (build before the Rust crate)
 cargo xwin build -p tunelock-desktop --release --features tauri/custom-protocol --target x86_64-pc-windows-msvc   # desktop app; without the feature it loads the dev server
+./scripts/build-installer.sh                                            # installer -> target/x86_64-pc-windows-msvc/release/bundle/nsis/ (needs llvm, clang, lld, nsis)
+cargo test -p tunelock-setup -- --ignored                               # downloads the real latest Spicetify
 cargo run -p tunelock-service -- run --data-dir <dir>                   # service in foreground
 cargo run -p tunelock-cli -- status                                     # CLI
 cargo xwin build -p tunelock-service -p tunelock-cli --target x86_64-pc-windows-msvc   # Windows build
@@ -60,4 +65,4 @@ Done and verified end-to-end on the user's machine (Spotify 1.3.5.3058, Windows,
 
 **M4 (Tauri UI), done:** `apps/desktop`, verified on the user's machine against the installed service (ADR 0006). The exe is staged at `C:\Users\ginoD\Downloads\tunelock\tunelock-app.exe` and isn't installed yet.
 
-Next: M5 (NSIS installer, CI, release, SignPath).
+**M5 (installer and first-run setup), in progress** (ADR 0007): the NSIS installer and the app's Setup page are built and tested; the install on the user's machine is still to be verified. CI, the release and SignPath wait until the user decides to publish. The repo stays private until then.

@@ -88,7 +88,7 @@ tunelock/
 - **M2, extension:** guards, cosmetic CSS, connection to the service.
 - **M3, Windows integration:** real Windows service, pipe ACL, protected data directory, resume-from-sleep handling, `SpotifyEnforcer` (re-apply Spicetify, fail-closed watchdog, ACLs, update detection).
 - **M4, Tauri UI:** start a session, presets, allowlist. The tray icon was dropped for v0.1 (ADR 0006).
-- **M5, release v0.1:** NSIS installer with service hooks, CI (fmt, clippy, tests, build), GitHub release. Then apply to SignPath.
+- **M5, release v0.1:** NSIS installer with service hooks and a first-run Setup page in the app (ADR 0007). CI (fmt, clippy, tests, build), the GitHub release and SignPath come when the project is published.
 - **v0.2:** schedule UI, session history, multiple profiles.
 
 ## Repository conventions

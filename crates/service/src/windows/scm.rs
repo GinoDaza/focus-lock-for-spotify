@@ -20,7 +20,7 @@ use windows_service::service_control_handler::{
 };
 use windows_service::service_manager::{ServiceManager, ServiceManagerAccess};
 use windows_service::{define_windows_service, service_dispatcher};
-use windows_sys::Win32::Foundation::ERROR_INVALID_SERVICE_CONTROL;
+use windows_sys::Win32::Foundation::{ERROR_INVALID_SERVICE_CONTROL, ERROR_SERVICE_DOES_NOT_EXIST};
 
 use crate::app::App;
 use crate::engine::Engine;
@@ -35,6 +35,8 @@ const SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;
 
 /// How often the accepted controls are brought in line with the session.
 const STATUS_PERIOD: Duration = Duration::from_secs(1);
+/// How long `uninstall` waits for the service to stop.
+const STOP_TIMEOUT: Duration = Duration::from_secs(30);
 
 static OPTIONS: OnceLock<Options> = OnceLock::new();
 
@@ -224,24 +226,40 @@ pub fn install() -> anyhow::Result<()> {
 }
 
 /// Stops and removes the service. Refused while a locked session runs.
+/// Succeeds without changes when the service is not installed, and waits
+/// until it has stopped so the installer can replace its files.
 ///
 /// # Errors
-/// If not run as an administrator, the service does not exist or a locked
-/// session is running.
+/// If not run as an administrator, a locked session is running or the
+/// service doesn't stop in time.
 pub fn uninstall(data_dir: &Path) -> anyhow::Result<()> {
     if is_locked(data_dir)? {
         bail!("a locked session is running; the service can be removed after it ends");
     }
     let manager = ServiceManager::local_computer(None::<&str>, ServiceManagerAccess::CONNECT)
         .context("cannot open the Service Control Manager (run as administrator)")?;
-    let service = manager
-        .open_service(
-            SERVICE_NAME,
-            ServiceAccess::QUERY_STATUS | ServiceAccess::STOP | ServiceAccess::DELETE,
-        )
-        .context("cannot open the service (is it installed?)")?;
+    let service = match manager.open_service(
+        SERVICE_NAME,
+        ServiceAccess::QUERY_STATUS | ServiceAccess::STOP | ServiceAccess::DELETE,
+    ) {
+        Ok(service) => service,
+        Err(windows_service::Error::Winapi(error))
+            if error.raw_os_error() == Some(ERROR_SERVICE_DOES_NOT_EXIST.cast_signed()) =>
+        {
+            println!("{SERVICE_NAME} is not installed");
+            return Ok(());
+        }
+        Err(error) => return Err(error).context("cannot open the service"),
+    };
     if service.query_status()?.current_state != ServiceState::Stopped {
         service.stop().context("the service refused to stop")?;
+        let deadline = std::time::Instant::now() + STOP_TIMEOUT;
+        while service.query_status()?.current_state != ServiceState::Stopped {
+            if std::time::Instant::now() > deadline {
+                bail!("the service didn't stop within {}s", STOP_TIMEOUT.as_secs());
+            }
+            std::thread::sleep(Duration::from_millis(200));
+        }
     }
     service.delete()?;
     println!("Removed {SERVICE_NAME}");

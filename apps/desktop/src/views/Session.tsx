@@ -25,16 +25,18 @@ export function SessionView({
   remaining,
   onChange,
   onNavigate,
+  needsSetup,
 }: {
   session: SessionInfo | null;
   remaining: number;
   onChange: Refresh;
   onNavigate: (tab: Tab) => void;
+  needsSetup: boolean;
 }) {
   return session ? (
     <ActiveSession session={session} remaining={remaining} onChange={onChange} />
   ) : (
-    <StartSession onChange={onChange} onNavigate={onNavigate} />
+    <StartSession onChange={onChange} onNavigate={onNavigate} needsSetup={needsSetup} />
   );
 }
 
@@ -156,9 +158,11 @@ interface Pending {
 function StartSession({
   onChange,
   onNavigate,
+  needsSetup,
 }: {
   onChange: Refresh;
   onNavigate: (tab: Tab) => void;
+  needsSetup: boolean;
 }) {
   const [allowlist, setAllowlist] = useState<Allowlist | null>(null);
   const [presets, setPresets] = useState<Preset[]>([]);
@@ -192,6 +196,15 @@ function StartSession({
   return (
     <Page title="Session" description="Focus with only your allowed playlists in Spotify.">
       {loadError && <InfoBar severity="critical" title="Couldn't load your settings.">{loadError}</InfoBar>}
+      {needsSetup && (
+        <InfoBar
+          severity="caution"
+          title="Spotify isn't set up yet."
+          action={<button onClick={() => onNavigate("setup")}>Set up</button>}
+        >
+          Sessions can't restrict Spotify until it is.
+        </InfoBar>
+      )}
       {noPlaylists && (
         <InfoBar
           severity="info"
