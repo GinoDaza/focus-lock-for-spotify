@@ -19,11 +19,35 @@ pub enum LockMode {
 /// A focus session. Time advances only through [`LockState::advance`], so
 /// the service decides which clock to trust.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(try_from = "SessionRepr")]
 pub struct Session {
     mode: LockMode,
+    #[serde(serialize_with = "crate::serde_secs::serialize")]
     duration: Duration,
+    #[serde(serialize_with = "crate::serde_secs::serialize")]
     elapsed: Duration,
     allowlist: Allowlist,
+}
+
+/// Unvalidated wire form of [`Session`]; deserialization goes through it.
+#[derive(Deserialize)]
+struct SessionRepr {
+    mode: LockMode,
+    #[serde(with = "crate::serde_secs")]
+    duration: Duration,
+    #[serde(with = "crate::serde_secs")]
+    elapsed: Duration,
+    allowlist: Allowlist,
+}
+
+impl TryFrom<SessionRepr> for Session {
+    type Error = Error;
+
+    fn try_from(repr: SessionRepr) -> Result<Self> {
+        let mut session = Self::new(repr.mode, repr.duration, repr.allowlist)?;
+        session.elapsed = repr.elapsed.min(session.duration);
+        Ok(session)
+    }
 }
 
 impl Session {
@@ -290,5 +314,28 @@ mod tests {
         let restored: LockState = serde_json::from_str(&json).unwrap();
         assert_eq!(restored, state);
         assert_eq!(restored.session().unwrap().remaining(), 7 * HOUR);
+    }
+
+    #[test]
+    fn json_shape_is_stable() {
+        let json = serde_json::to_string(&active(LockMode::Locked, HOUR)).unwrap();
+        assert_eq!(
+            json,
+            r#"{"state":"active","mode":"locked","duration":3600,"elapsed":0,"allowlist":["37i9dQZF1DX8NTLI2TtZa6"]}"#
+        );
+        assert_eq!(
+            serde_json::to_string(&LockState::Idle).unwrap(),
+            r#"{"state":"idle"}"#
+        );
+    }
+
+    #[test]
+    fn deserialize_validates_and_clamps_elapsed() {
+        let zero = r#"{"state":"active","mode":"locked","duration":0,"elapsed":0,"allowlist":["37i9dQZF1DX8NTLI2TtZa6"]}"#;
+        assert!(serde_json::from_str::<LockState>(zero).is_err());
+
+        let overrun = r#"{"state":"active","mode":"locked","duration":60,"elapsed":999,"allowlist":["37i9dQZF1DX8NTLI2TtZa6"]}"#;
+        let state: LockState = serde_json::from_str(overrun).unwrap();
+        assert_eq!(state.session().unwrap().remaining(), Duration::ZERO);
     }
 }

@@ -8,12 +8,31 @@ use crate::{Error, LockMode, Result};
 /// If `end` is earlier than `start` the window crosses midnight and belongs
 /// to the day it starts on (Fri 22:00–02:00 ends Saturday at 02:00).
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(try_from = "ScheduleRepr")]
 pub struct Schedule {
     name: String,
     days: Vec<Weekday>,
     start: NaiveTime,
     end: NaiveTime,
     mode: LockMode,
+}
+
+/// Unvalidated wire form of [`Schedule`]; deserialization goes through it.
+#[derive(Deserialize)]
+struct ScheduleRepr {
+    name: String,
+    days: Vec<Weekday>,
+    start: NaiveTime,
+    end: NaiveTime,
+    mode: LockMode,
+}
+
+impl TryFrom<ScheduleRepr> for Schedule {
+    type Error = Error;
+
+    fn try_from(repr: ScheduleRepr) -> Result<Self> {
+        Self::new(&repr.name, repr.days, repr.start, repr.end, repr.mode)
+    }
 }
 
 impl Schedule {
@@ -198,5 +217,9 @@ mod tests {
         let schedule = workdays();
         let json = serde_json::to_string(&schedule).unwrap();
         assert_eq!(serde_json::from_str::<Schedule>(&json).unwrap(), schedule);
+
+        let no_days =
+            r#"{"name":"x","days":[],"start":"09:00:00","end":"10:00:00","mode":"locked"}"#;
+        assert!(serde_json::from_str::<Schedule>(no_days).is_err());
     }
 }

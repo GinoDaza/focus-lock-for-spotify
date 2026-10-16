@@ -7,10 +7,29 @@ use crate::{Allowlist, Error, LockMode, Result, Session};
 
 /// A saved session template, e.g. "Study 10 h, locked".
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(try_from = "PresetRepr")]
 pub struct Preset {
     name: String,
     mode: LockMode,
+    #[serde(serialize_with = "crate::serde_secs::serialize")]
     duration: Duration,
+}
+
+/// Unvalidated wire form of [`Preset`]; deserialization goes through it.
+#[derive(Deserialize)]
+struct PresetRepr {
+    name: String,
+    mode: LockMode,
+    #[serde(with = "crate::serde_secs")]
+    duration: Duration,
+}
+
+impl TryFrom<PresetRepr> for Preset {
+    type Error = Error;
+
+    fn try_from(repr: PresetRepr) -> Result<Self> {
+        Self::new(&repr.name, repr.mode, repr.duration)
+    }
 }
 
 impl Preset {
@@ -75,5 +94,24 @@ mod tests {
         let session = preset.to_session(allowlist).unwrap();
         assert_eq!(session.mode(), LockMode::Locked);
         assert_eq!(session.remaining(), Duration::from_hours(5 * 24));
+    }
+
+    #[test]
+    fn json_uses_seconds_and_is_validated() {
+        let preset = Preset::new("Study", LockMode::Locked, Duration::from_hours(2)).unwrap();
+        let json = serde_json::to_string(&preset).unwrap();
+        assert_eq!(json, r#"{"name":"Study","mode":"locked","duration":7200}"#);
+        assert_eq!(serde_json::from_str::<Preset>(&json).unwrap(), preset);
+
+        for invalid in [
+            r#"{"name":" ","mode":"locked","duration":60}"#,
+            r#"{"name":"x","mode":"locked","duration":0}"#,
+            r#"{"name":"x","mode":"locked","duration":99999999}"#,
+        ] {
+            assert!(
+                serde_json::from_str::<Preset>(invalid).is_err(),
+                "{invalid}"
+            );
+        }
     }
 }

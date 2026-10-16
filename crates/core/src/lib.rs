@@ -7,6 +7,7 @@ mod error;
 mod playlist;
 mod preset;
 mod schedule;
+pub mod serde_secs;
 mod session;
 
 pub use error::{Error, Result};
