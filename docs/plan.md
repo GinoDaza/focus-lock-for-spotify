@@ -1,107 +1,103 @@
-# Plan: Tunelock — candado de enfoque para Spotify de escritorio (Windows)
+# Plan: Tunelock, a focus lock for the Spotify desktop app (Windows)
 
-> **Estado (2026-10-16):** M0, M1 y M2 hechos; sigue M3. En la implementación hubo dos cambios respecto a este plan:
-> - La persistencia es un archivo JSON en lugar de SQLite (ADR 0002).
-> - La extensión no usa un overlay propio: aplica guardias de navegación y de reproducción más CSS estético (ADR 0003).
+> **Status (2026-10-16):** M0, M1 and M2 are done; M3 is next. Two things changed during implementation:
+> - Persistence is a JSON file instead of SQLite (ADR 0002).
+> - The extension does not render its own overlay. It uses navigation and playback guards plus cosmetic CSS (ADR 0003).
 >
-> El estado actual del proyecto está en `AGENTS.md`.
+> The current project status is in `AGENTS.md`.
 
-## Contexto
+## Context
 
-La música que distrae (phonk, etc.) rompe la concentración al estudiar o programar. Investigamos (nosotros y agy, ver `investigacion-agy.md`) y **no existe** una herramienta que reduzca la app de escritorio de Spotify a unas pocas playlists con un candado por tiempo estilo Cold Turkey. Los bloqueadores existentes bloquean apps o webs enteras; ninguno permite "deja la app, pero solo este contenido".
+Distracting music (phonk, etc.) breaks concentration while studying or coding. Research (see [`research.md`](research.md)) found **no** tool that reduces the Spotify desktop app to a few playlists with a Cold Turkey-style time lock. Existing blockers block whole apps or websites; none allow "keep the app, but only this content".
 
-Objetivo: un proyecto **open source (GPL-3.0), gratis, llamado Tunelock**, con buena arquitectura y mantenimiento ligero. Alcance de v0.1: **Windows + app de escritorio de Spotify**. Navegador y reproductor web quedan fuera (decisión del usuario).
+Goal: an **open-source (GPL-3.0), free project called Tunelock** with a solid architecture and light maintenance. Scope for v0.1 is **Windows and the Spotify desktop app**. The browser and the web player are out of scope.
 
-## Decisiones de stack (lo estándar para cada pieza)
+## Stack decisions (the standard choice for each piece)
 
-| Pieza | Tecnología | Por qué |
+| Piece | Technology | Why |
 |---|---|---|
-| Núcleo + servicio | **Rust**, crate `windows-service`, `tokio` | Binario nativo pequeño, sin runtime. `windows-service` es el crate estándar para servicios Win32. |
-| IPC servicio ↔ UI | Named pipe (`interprocess`) con ACL + protocolo JSON tipado (`serde`) | Es el mecanismo estándar en Windows entre un servicio y una app de usuario. La ACL controla quién puede enviar comandos. |
-| Persistencia | SQLite (`rusqlite`, migraciones) en `%ProgramData%\Tunelock`, con ACL solo para SYSTEM/Admin | Bloqueos, presets, horarios e historial. Escritura atómica. |
-| UI de escritorio | **Tauri v2** + React + TypeScript + Vite, con icono en la bandeja | Estándar actual para apps de escritorio con Rust. Reutiliza los tipos del protocolo. |
-| Extensión de Spotify | TypeScript empaquetado con **esbuild** en un solo `.js` de Spicetify | Las extensiones de Spicetify son un único archivo JS (doc oficial). |
-| Instalador | Bundler NSIS de Tauri (`perMachine`) + `installer_hooks` (.nsh) | Los hooks de NSIS instalan y desinstalan el servicio. |
-| CI/CD | GitHub Actions `windows-latest`. Firma con SignPath Foundation (gratis para OSS, requiere una release publicada y build automatizado) | Estándar para OSS en Windows. |
+| Core + service | **Rust**, `windows-service` crate, `tokio` | Small native binary, no runtime. `windows-service` is the standard crate for Win32 services. |
+| Service ↔ UI IPC | Named pipe (`interprocess`) with an ACL + typed JSON protocol (`serde`) | The standard Windows mechanism between a service and a user app. The ACL controls who can send commands. |
+| Persistence | ~~SQLite~~ JSON file in `%ProgramData%\Tunelock`, ACL for SYSTEM/Admin only | Sessions, presets, schedules. Atomic writes. See ADR 0002. |
+| Desktop UI | **Tauri v2** + React + TypeScript + Vite, with a tray icon | Today's standard for Rust desktop apps. Reuses the protocol types. |
+| Spotify extension | TypeScript bundled with **esbuild** into a single Spicetify `.js` | Spicetify extensions are a single JS file (official docs). |
+| Installer | Tauri's NSIS bundler (`perMachine`) + `installer_hooks` (.nsh) | NSIS hooks install and remove the service. |
+| CI/CD | GitHub Actions `windows-latest`. Signing through SignPath Foundation (free for OSS; requires a published release and an automated build) | Standard for OSS on Windows. |
 
-## Arquitectura
+## Architecture
 
 ```
 tunelock/
 ├─ Cargo.toml                 (workspace)
 ├─ crates/
-│  ├─ core/       dominio puro: Lock, Preset, Schedule, Allowlist, máquina de estados, reloj abstracto
-│  ├─ protocol/   tipos de mensajes IPC (serde), versionados
-│  ├─ service/    binario `tunelock-service`: servicio Windows, IPC, persistencia, enforcers
-│  └─ cli/        `tunelock` CLI de desarrollo/diagnóstico (status, start lock, presets)
+│  ├─ core/       pure domain: Lock, Preset, Schedule, Allowlist, state machine
+│  ├─ protocol/   IPC message types (serde), versioned
+│  ├─ service/    `tunelock-service` binary: Windows service, IPC, persistence, enforcers
+│  └─ cli/        `tunelock` CLI for development and diagnostics
 ├─ apps/desktop/  Tauri v2 (src-tauri/ + src/ React)
 ├─ extension/     Spicetify: src/*.ts → dist/tunelock.js (esbuild)
-├─ installer/     hooks .nsh
-├─ docs/          idea original, investigación, ADRs (decisiones de arquitectura)
+├─ installer/     .nsh hooks
+├─ docs/          original idea, research, ADRs
 └─ .github/workflows/
 ```
 
-### Núcleo (`crates/core`)
-- **Máquina de estados del bloqueo:** `Idle → Active{Flexible|Locked} → Expired`. Un bloqueo en modo `Locked` rechaza cualquier comando de cancelación hasta su fin.
-- **Tiempo resistente a cambios del reloj:** el servicio cuenta el tiempo restante con un reloj monotónico y lo persiste periódicamente. Cambiar la hora del sistema no adelanta el fin. Se reanuda correctamente tras reinicio o suspensión.
-- **Presets** ("Estudio 10 h", "Semana de exámenes 5 días") y **horarios** (L–V 9:00–18:00), modelados ya en v0.1 aunque la UI de horarios llegue en v0.2.
-- **Allowlist** por perfil: lista de URIs `spotify:playlist:<id>`.
-- Pura y sin I/O: se prueba al 100 % con un reloj falso.
+### Core (`crates/core`)
+- **Lock state machine:** `Idle → Active{Flexible|Locked} → Idle`. A `Locked` session rejects every cancel request until it ends.
+- **Time that resists clock changes:** the service credits elapsed time itself (see ADR 0002), so changing the system time never brings the end closer. Sessions resume correctly after a reboot or sleep.
+- **Presets** ("Study 10 h", "Exam week 5 days") and **schedules** (Mon–Fri 9:00–18:00), modelled in v0.1 even though the schedule UI arrives in v0.2.
+- **Allowlist** of `spotify:playlist:<id>` URIs.
+- Pure and without I/O, so it is fully testable.
 
-### Servicio (`crates/service`)
-- Corre como **LocalSystem** y arranca automáticamente con recuperación configurada (reinicio si se cae).
-- **Servidor IPC** (named pipe): la UI y la CLI envían comandos (`StartLock`, `GetStatus`, `ListPresets`…).
-- **Endpoint local de solo lectura** (WebSocket/HTTP en `127.0.0.1`): la extensión consulta el estado del bloqueo y la allowlist, y envía un heartbeat. Como es de solo lectura, exponerlo no permite desbloquear nada.
-- **Enforcers** como trait `Enforcer { on_lock_start, on_tick, on_lock_end }`. Generalizar a otras apps más adelante consiste en agregar un enforcer.
+### Service (`crates/service`)
+- Runs as **LocalSystem** with automatic start and recovery configured (restart on failure).
+- **IPC server** (named pipe): the UI and the CLI send commands (`StartSession`, `Status`, `ListPresets`…).
+- **Read-only local endpoint** (HTTP on `127.0.0.1`): the extension reads the session state and the allowlist and sends a heartbeat. Because it is read-only, exposing it cannot unlock anything.
+- **Enforcers** behind a trait (`on_lock_start`, `on_tick`, `on_lock_end`). Supporting other apps later means adding an enforcer.
   - `SpotifyEnforcer`:
-    1. Al iniciar el bloqueo, verifica que Spicetify esté aplicado con la extensión de Tunelock. Si no lo está, la reaplica en el contexto del usuario.
-    2. **Fail-closed:** si `Spotify.exe` corre durante el bloqueo y la extensión no envía heartbeat en N segundos, cierra Spotify. Encaja con el criterio del usuario: "prefiero no escuchar nada".
-    3. Protege con ACL los archivos de la extensión mientras dure el bloqueo y restaura los permisos al terminar.
-  - Detecta las actualizaciones de Spotify (que borran Spicetify) y vuelve a aplicarlo.
-- La desinstalación y la detención del servicio se rechazan mientras haya un bloqueo `Locked` activo (el hook de NSIS consulta al servicio).
+    1. When a session starts, checks that Spicetify is applied with the Tunelock extension, and re-applies it in the user's context if not.
+    2. **Fail-closed:** if `Spotify.exe` runs during a session and the extension sends no heartbeat within N seconds, it closes Spotify. That matches the user's choice: "I'd rather hear nothing."
+    3. Protects the extension's files with ACLs for the duration of the session and restores permissions afterwards.
+  - Detects Spotify updates (which remove Spicetify) and re-applies it.
+- Stopping or uninstalling the service is refused while a `Locked` session is active (the NSIS hook asks the service).
 
-### Extensión (`extension/`)
-- **Vista de enfoque como overlay propio** a pantalla completa, con las playlists permitidas y los controles del reproductor. Se prefiere a ocultar decenas de selectores con CSS porque se rompe mucho menos cuando Spotify cambia su interfaz.
-- **Guardia de navegación** (`Spicetify.Platform.History.listen`): cualquier ruta fuera de la allowlist redirige a la vista de enfoque.
-- **Guardia de reproducción** (`Spicetify.Player` evento `songchange`): si el contexto que suena no está en la allowlist, reproduce una playlist permitida o pausa.
-- Los selectores y rutas internas de Spotify van en un solo archivo `spotify-compat.ts`, para que adaptarse a una actualización toque un solo lugar.
-- Sin bloqueo activo, la extensión no hace nada y Spotify funciona normal.
+### Extension (`extension/`)
+- **Navigation guard** (`Spicetify.Platform.History.listen`): any route outside the allowlist redirects to an allowed playlist.
+- **Playback guard** (`Spicetify.Player` events): if the playing context is not in the allowlist, playback is paused.
+- **Cosmetic CSS:** hides search, home, browse and the library rows that are not allowed. (The plan originally proposed a full-screen overlay; ADR 0003 replaced it with these layers.)
+- Spotify's internal selectors and routes live in one file, `compat.ts`, so adapting to an update touches a single place.
+- Without an active session, the extension does nothing and Spotify works normally.
 
 ### UI (`apps/desktop`)
-- Icono en la bandeja con estado y cuenta regresiva.
-- Pantallas: Inicio (iniciar bloqueo, flexible o candado, con duración en horas o días), Presets, Playlists permitidas (pegar el link "Copiar enlace" y extraer el ID), Ajustes.
-- Confirmación fuerte antes de un bloqueo `Locked` ("no podrás cancelarlo hasta…").
-- Si cierras la UI, el bloqueo sigue (vive en el servicio).
+- Tray icon with the status and a countdown.
+- Screens: Home (start a flexible or locked session, in hours or days), Presets, Allowed playlists (paste the "Copy link" URL and extract the ID), Settings.
+- A strong confirmation before a `Locked` session ("you won't be able to cancel it until…").
+- Closing the UI does not end the session (it lives in the service).
 
-## Riesgos conocidos (para resolver con spikes en la fase 0)
-1. **¿La extensión puede conectarse a `127.0.0.1` desde el cliente de Spotify?** No lo confirmé; la doc no lo aclara. Alternativa si no puede: el servicio genera la config de la extensión con el estado embebido, vuelve a aplicarla y reinicia Spotify al iniciar o terminar un bloqueo. El heartbeat se reemplaza por una verificación de los archivos aplicados.
-2. **Spotify se instala por usuario** (`%APPDATA%`), pero el servicio corre como SYSTEM. Para aplicar Spicetify hay que lanzar procesos en la sesión del usuario activo (`WTSQueryUserToken` + `CreateProcessAsUser`).
-3. **La versión de Spotify de Microsoft Store no es compatible con Spicetify.** El instalador debe detectarla y pedir la versión de spotify.com.
-4. **Ningún candado es absoluto para un administrador local.** El objetivo es la fricción alta (como Cold Turkey), no la invulnerabilidad. Se documenta así en el README, sin detallar cómo evadirlo.
-5. **Términos de servicio de Spotify:** modificar el cliente va contra ellos. Se avisa en el README.
-6. **Entorno:** se desarrolla en WSL, pero el servicio y Tauri son de Windows. Se compila con `cargo-xwin` o del lado Windows, y la CI usa `windows-latest`. Las pruebas reales se hacen en Windows (idealmente en una VM o con una cuenta de prueba).
+## Known risks (resolved with spikes in phase 0)
+1. ~~Can the extension reach `127.0.0.1` from inside the Spotify client?~~ **Yes** (ADR 0003).
+2. **Spotify is installed per user** (`%APPDATA%`), but the service runs as SYSTEM. Applying Spicetify requires launching processes in the active user's session (`WTSQueryUserToken` + `CreateProcessAsUser`).
+3. **The Microsoft Store version of Spotify is not compatible with Spicetify.** The installer must detect it and ask for the spotify.com version.
+4. **No lock is absolute against a local administrator.** The goal is high friction (like Cold Turkey), not invulnerability. The README says so without explaining how to get around it.
+5. **Spotify's terms of service:** modifying the client goes against them. The README warns about it.
+6. **Environment:** development happens in WSL, but the service and Tauri are Windows software. Build with `cargo-xwin` or on Windows; CI uses `windows-latest`. Real tests run on Windows.
 
-## Hitos
+## Milestones
 
-- **M0 — Repo y spikes**
-  - `git init`, `.gitignore` (Rust, Node, Tauri), `LICENSE` GPL-3.0, `README.md`, `.editorconfig`.
-  - Mover `spotify-focus-lock.md` e `investigacion-agy.md` a `docs/`.
-  - Primer ADR: decisión del stack.
-  - Spikes de los riesgos 1 y 2.
-- **M1 — Núcleo + servicio + CLI:** máquina de estados, persistencia, IPC, servicio instalable, y `tunelock lock start --hours 2 --locked` funcionando de punta a punta.
-- **M2 — Extensión:** overlay, guardias, conexión con el servicio.
-- **M3 — SpotifyEnforcer:** aplicar y reaplicar Spicetify, watchdog fail-closed, ACL, detección de actualizaciones.
-- **M4 — UI Tauri:** bandeja, iniciar bloqueo, presets, allowlist.
-- **M5 — Release v0.1:** instalador NSIS con hooks del servicio, CI (fmt, clippy, tests, build), release en GitHub. Después, solicitud a SignPath.
-- **v0.2:** UI de horarios programados, historial de sesiones, varios perfiles.
+- **M0, repo and spikes:** `git init`, `.gitignore`, GPL-3.0 `LICENSE`, `README.md`, `.editorconfig`, docs moved to `docs/`, ADR for the stack, spikes for risks 1 and 2.
+- **M1, core + service + CLI:** state machine, persistence, IPC, and `tunelock start 2h --locked` working end to end.
+- **M2, extension:** guards, cosmetic CSS, connection to the service.
+- **M3, Windows integration:** real Windows service, pipe ACL, protected data directory, resume-from-sleep handling, `SpotifyEnforcer` (re-apply Spicetify, fail-closed watchdog, ACLs, update detection).
+- **M4, Tauri UI:** tray, start a session, presets, allowlist.
+- **M5, release v0.1:** NSIS installer with service hooks, CI (fmt, clippy, tests, build), GitHub release. Then apply to SignPath.
+- **v0.2:** schedule UI, session history, multiple profiles.
 
-## Convenciones del repo
-- Conventional Commits; rama `main` protegida más adelante.
-- CI: `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test`, `pnpm lint`, `pnpm test`, y build de Tauri y de la extensión.
-- README: qué es, capturas, instalación, aviso de los términos de Spotify, "proyecto personal sin garantías de soporte" y política de firma de código (requisito de SignPath).
+## Repository conventions
+- Conventional Commits; protect `main` later.
+- CI: `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test`, `pnpm typecheck`, `pnpm test`, and builds of Tauri and the extension.
+- README: what it is, screenshots, installation, the Spotify terms warning, "personal project without support guarantees", and the code-signing policy (required by SignPath).
 
-## Verificación
-- **Unitarias (core):** transiciones de estado, rechazo de cancelación en modo `Locked`, reanudación tras reinicio, cambio del reloj del sistema sin efecto, cálculo de horarios. Todo con reloj falso.
-- **Integración (service):** cliente IPC de prueba contra el servicio en modo consola (sin instalarlo como servicio).
-- **Extensión:** pruebas de la lógica de allowlist y guardias con Vitest (con `Spicetify` simulado).
-- **End-to-end manual en Windows:** instalar → configurar 2 playlists → bloqueo `Locked` de 5 min → comprobar que solo se ven y suenan esas playlists, que cerrar la UI no lo quita y que reiniciar el PC lo mantiene → al expirar, Spotify vuelve a la normalidad.
+## Verification
+- **Unit (core):** state transitions, refusing to cancel in `Locked` mode, resuming after a restart, clock changes having no effect, schedule windows.
+- **Integration (service):** a test IPC client against the service in console mode.
+- **Extension:** allowlist and guard logic with Vitest.
+- **Manual end-to-end on Windows:** install → set 2 playlists → 5-minute `Locked` session → check that only those playlists are visible and playable, that closing the UI does not end it and that a reboot keeps it → when it expires, Spotify returns to normal.

@@ -16,7 +16,7 @@ Tunelock is a Cold Turkey-style focus lock for the **Spotify desktop app on Wind
 | `crates/cli` | `tunelock` CLI (status/start/cancel/extend/harden/allowlist/preset/schedule). |
 | `extension/` | Spicetify extension in TypeScript, bundled by esbuild to `dist/tunelock.js`. **All Spotify-specific selectors and routes live in `src/compat.ts`.** |
 | `spikes/` | Throwaway experiments (`tunelock-spike.js` proved extension → localhost works). |
-| `docs/` | `plan.md` (approved plan, Spanish), ADRs, original idea and research. |
+| `docs/` | `plan.md` (approved plan), ADRs, `idea.md` (original note) and `research.md` (prior art). |
 
 ## Commands
 
@@ -35,7 +35,7 @@ The workspace lints forbid `unsafe` (`unsafe_code = "forbid"`). Windows FFI code
 - **Never document or explain ways to bypass or undo a lock.** That includes commands, workarounds and weaknesses spelled out step by step, in docs, comments, READMEs or chat. Describe protections, not how to defeat them. The user explicitly asked for this.
 - A locked session must never become weaker. Only adding time and hardening are allowed. Any new request or setting must preserve that.
 - Keep Spotify internals in `extension/src/compat.ts`. Production Spotify strips `data-testid`, so use surviving attributes (`data-top-bar-search`, `aria-*`, ids) or Spicetify's stable `main-*` classes. Verify a selector against the installed `xpui` bundle before using it.
-- Conventional Commits. Code, comments and the README are in English; the user talks in Spanish.
+- Conventional Commits. Everything in the repo is in English (code, comments, docs, commits). The user writes in Spanish; translate when writing to the repo.
 - New architectural decisions get an ADR in `docs/adr/`.
 
 ## Status (2026-10-16)
