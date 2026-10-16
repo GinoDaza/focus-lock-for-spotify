@@ -1,6 +1,6 @@
 # Plan: Tunelock, a focus lock for the Spotify desktop app (Windows)
 
-> **Status (2026-10-16):** M0, M1 and M2 are done; M3 is next. Two things changed during implementation:
+> **Status (2026-10-16):** M0, M1 and M2 are done; M3 is in progress (ADR 0004). Two things changed during implementation:
 > - Persistence is a JSON file instead of SQLite (ADR 0002).
 > - The extension does not render its own overlay. It uses navigation and playback guards plus cosmetic CSS (ADR 0003).
 >

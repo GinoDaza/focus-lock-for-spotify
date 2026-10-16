@@ -55,6 +55,14 @@ impl Engine {
         self.advance(gap)
     }
 
+    /// Credits the time spent asleep and saves. Call when the machine
+    /// resumes from sleep.
+    pub fn resume(&mut self, now: DateTime<Utc>) -> Option<Event> {
+        let event = self.credit_downtime(now);
+        self.save();
+        event
+    }
+
     /// Regular heartbeat of the service, every few seconds.
     pub fn tick(
         &mut self,
@@ -107,6 +115,15 @@ impl Engine {
     #[must_use]
     pub fn is_active(&self) -> bool {
         self.data.state.is_active()
+    }
+
+    /// Whether a session that cannot be cancelled is running.
+    #[must_use]
+    pub fn is_locked(&self) -> bool {
+        self.data
+            .state
+            .session()
+            .is_some_and(|session| session.mode() == LockMode::Locked)
     }
 
     fn apply(&mut self, request: Request, local: NaiveDateTime) -> Reply {
@@ -366,6 +383,20 @@ mod tests {
             Some(Event::Ended)
         );
         assert!(!engine.is_active());
+    }
+
+    #[test]
+    fn resume_credits_sleep_and_saves() {
+        let mut engine = engine();
+        start(&mut engine, LockMode::Locked, 2 * HOUR);
+        assert_eq!(engine.resume(t0() + TimeDelta::hours(1)), None);
+        assert_eq!(remaining(&engine), Some(HOUR));
+        assert!(engine.is_locked());
+        assert_eq!(
+            engine.resume(t0() + TimeDelta::hours(3)),
+            Some(Event::Ended)
+        );
+        assert!(!engine.is_locked());
     }
 
     #[test]
