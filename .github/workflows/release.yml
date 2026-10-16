@@ -8,6 +8,8 @@ on:
 
 permissions:
   contents: write
+  id-token: write
+  attestations: write
 
 jobs:
   installer:
@@ -57,3 +59,9 @@ jobs:
           releaseBody: See the assets below to download the installer.
           releaseDraft: true
           args: --target x86_64-pc-windows-msvc
+
+      # Lets anyone verify with `gh attestation verify` that the installer was
+      # built by this workflow from this repository.
+      - uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe

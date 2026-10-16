@@ -1,5 +1,6 @@
 //! Extension channel: a tiny read-only HTTP API on the loopback interface
-//! for the Spotify extension. Nothing here can change a session.
+//! for the Spotify extension. Nothing here can change a session; the only
+//! write is the timestamp of the last heartbeat.
 
 use std::io;
 use std::net::{Ipv4Addr, SocketAddr};
@@ -24,7 +25,7 @@ pub async fn bind(port: u16) -> io::Result<TcpListener> {
 
 pub fn router(app: App) -> Router {
     // The Spotify client is a web page with its own origin, so CORS is
-    // required. Every route is read-only, so any origin may call it.
+    // required. No route can change a session, so any origin may call them.
     let cors = CorsLayer::new()
         .allow_origin(Any)
         .allow_methods([Method::GET, Method::POST]);
