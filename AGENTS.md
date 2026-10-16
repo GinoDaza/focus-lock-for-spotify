@@ -58,4 +58,6 @@ Done and verified end-to-end on the user's machine (Spotify 1.3.5.3058, Windows,
 - Implemented, verified only when Spotify next updates: re-applying Spicetify (`spicetify -q -n backup apply` as the console user). Check `C:\ProgramData\Tunelock\service.log`.
 - To update the installed service: stop it outside a session, replace `C:\Program Files\Tunelock\tunelock-service.exe`, start it (elevated prompt; the user does it).
 
-After M3: M4 (Tauri UI), M5 (NSIS installer, CI, release, SignPath).
+**M4 (Tauri UI), done:** `apps/desktop`, verified on the user's machine against the installed service (ADR 0006). The exe is staged at `C:\Users\ginoD\Downloads\tunelock\tunelock-app.exe` and isn't installed yet.
+
+Next: M5 (NSIS installer, CI, release, SignPath).
