@@ -24,6 +24,17 @@ Website and app blockers can block Spotify entirely, but none of them let you ke
 3. Open Tunelock. The Setup page installs Spicetify and the Tunelock extension if they are missing.
 4. Pick your allowed playlists and start a session.
 
+## Usage
+
+![Spotify showing only the allowed playlists, next to the Tunelock app with a running session](docs/images/session.png)
+
+- **Playlists:** add the playlists Spotify may show and play during a session.
+- **Session:** choose a duration and a mode, then start. A locked session cannot be cancelled before it ends, and you can only add time to it.
+- **Presets:** save durations you use often, such as "Study 10 h".
+- **Setup:** shows whether Spotify, Spicetify and the Tunelock extension are ready, and fixes what is missing.
+
+Tunelock also has a command-line tool, `tunelock`, with the same controls (run `tunelock --help`).
+
 ## How it works
 
 - `tunelock-service` is a Windows service written in Rust. It owns the session state and the timer.
@@ -37,6 +48,18 @@ See [`docs/plan.md`](docs/plan.md) and [`docs/adr/`](docs/adr/) for the design.
 - Windows only, with the Spotify desktop app from spotify.com. The Microsoft Store version is not supported by Spicetify.
 - Tunelock adds strong friction, but it is not meant to be impossible to remove for an administrator of their own machine.
 - Modifying the Spotify client is against Spotify's Terms of Use. Use it at your own risk.
+
+## Build from source
+
+You need Rust, Node.js with pnpm, and, to cross-build the Windows installer from Linux or WSL, `cargo-xwin` plus the `llvm`, `clang`, `lld` and `nsis` packages.
+
+```sh
+cargo fmt && cargo clippy --all-targets -- -D warnings && cargo test
+cd extension && pnpm install && pnpm typecheck && pnpm test && pnpm build
+./scripts/build-installer.sh
+```
+
+[`AGENTS.md`](AGENTS.md) lists every command and the layout of the repository, and is the place to start before contributing. Changes should keep the rules in it, in particular that a locked session can never become weaker.
 
 ## Project status and support
 
