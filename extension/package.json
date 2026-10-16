@@ -1,0 +1,18 @@
+{
+  "name": "tunelock-extension",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Spicetify extension that restricts the Spotify client during Tunelock sessions.",
+  "license": "GPL-3.0-only",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}
