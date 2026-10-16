@@ -6,7 +6,7 @@
 
 ## Why
 
-Website and app blockers can block Spotify entirely, but none of them let you keep Spotify open with *only* your focus music. Tunelock fills that gap.
+Website and app blockers like Cold Turkey can only block Spotify entirely. Tunelock keeps the Spotify desktop app open but restricted to an allowlist (whitelist) of playlists, so you can block everything else, such as search, recommendations and other playlists, while you study or focus.
 
 ## Features (v0.1)
 
