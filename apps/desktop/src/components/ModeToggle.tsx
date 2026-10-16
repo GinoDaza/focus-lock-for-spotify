@@ -1,5 +1,10 @@
 import type { LockMode } from "../protocol";
 
+const OPTIONS: [LockMode, string, string][] = [
+  ["flexible", "Flexible", "You can end it early."],
+  ["locked", "Locked", "Can't be ended until the time runs out."],
+];
+
 export function ModeToggle({
   value,
   onChange,
@@ -8,15 +13,21 @@ export function ModeToggle({
   onChange: (mode: LockMode) => void;
 }) {
   return (
-    <div className="segmented" role="radiogroup" aria-label="Mode">
-      <button role="radio" aria-checked={value === "flexible"} onClick={() => onChange("flexible")}>
-        <strong>Flexible</strong>
-        <span>You can end it early.</span>
-      </button>
-      <button role="radio" aria-checked={value === "locked"} onClick={() => onChange("locked")}>
-        <strong>Locked</strong>
-        <span>No way back until it ends.</span>
-      </button>
+    <div className="radios" role="radiogroup" aria-label="Mode">
+      {OPTIONS.map(([mode, label, hint]) => (
+        <label key={mode} className="radio">
+          <input
+            type="radio"
+            name="mode"
+            checked={value === mode}
+            onChange={() => onChange(mode)}
+          />
+          <span>
+            {label}
+            <span className="caption secondary-text"> · {hint}</span>
+          </span>
+        </label>
+      ))}
     </div>
   );
 }

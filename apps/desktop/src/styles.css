@@ -1,35 +1,89 @@
+/*
+ * Windows 11 look built from WinUI theme resources: Segoe UI Variable and
+ * its type ramp, 4px corners for in-page controls and 8px for dialogs,
+ * translucent card and control fills, and the default Windows accent.
+ * https://learn.microsoft.com/windows/apps/design/signature-experiences/
+ */
+
 :root {
-  color-scheme: light dark;
-  --bg: #f6f6f8;
-  --surface: #ffffff;
-  --border: #dedee4;
-  --text: #17171c;
-  --muted: #6b6b76;
-  --accent: #4f46e5;
+  color-scheme: light;
+  --bg: #f3f3f3;
+  --pane: #ebebeb;
+  --text: rgb(0 0 0 / 0.896);
+  --text-2: rgb(0 0 0 / 0.606);
+  --text-3: rgb(0 0 0 / 0.446);
+  --card: rgb(255 255 255 / 0.7);
+  --card-stroke: rgb(0 0 0 / 0.0578);
+  --control: rgb(255 255 255 / 0.7);
+  --control-hover: rgb(249 249 249 / 0.5);
+  --control-pressed: rgb(249 249 249 / 0.3);
+  --control-stroke: rgb(0 0 0 / 0.0578);
+  --control-stroke-bottom: rgb(0 0 0 / 0.1622);
+  --input: rgb(255 255 255 / 0.7);
+  --input-focus: #ffffff;
+  --input-stroke-bottom: rgb(0 0 0 / 0.4458);
+  --subtle-hover: rgb(0 0 0 / 0.0373);
+  --subtle-pressed: rgb(0 0 0 / 0.0241);
+  --divider: rgb(0 0 0 / 0.0803);
+  --accent: #005fb8;
+  --accent-hover: #0067c0;
   --accent-text: #ffffff;
-  --danger: #c2410c;
-  --danger-text: #ffffff;
-  --locked: #c2410c;
-  --active: #15803d;
-  --radius: 10px;
-  font-family: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
-  font-size: 14px;
-  line-height: 1.45;
+  --accent-link: #003e92;
+  --progress-track: rgb(0 0 0 / 0.4458);
+  --focus: rgb(0 0 0 / 0.896);
+  --smoke: rgb(0 0 0 / 0.3);
+  --dialog: #ffffff;
+  --dialog-footer: #f3f3f3;
+  --info-bg: rgb(246 246 246 / 0.5);
+  --info-fg: #005fb8;
+  --success-bg: #dff6dd;
+  --success-fg: #0f7b0f;
+  --caution-bg: #fff4ce;
+  --caution-fg: #9d5d00;
+  --critical-bg: #fde7e9;
+  --critical-fg: #c42b1c;
+  --shadow-dialog: 0 32px 64px rgb(0 0 0 / 0.19), 0 2px 21px rgb(0 0 0 / 0.15);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #131317;
-    --surface: #1c1c22;
-    --border: #2e2e37;
-    --text: #ececf1;
-    --muted: #9a9aa6;
-    --accent: #818cf8;
-    --accent-text: #0f0f14;
-    --danger: #fb923c;
-    --danger-text: #1a0d05;
-    --locked: #fb923c;
-    --active: #4ade80;
+    color-scheme: dark;
+    --bg: #202020;
+    --pane: #1c1c1c;
+    --text: #ffffff;
+    --text-2: rgb(255 255 255 / 0.786);
+    --text-3: rgb(255 255 255 / 0.544);
+    --card: rgb(255 255 255 / 0.0512);
+    --card-stroke: rgb(0 0 0 / 0.1);
+    --control: rgb(255 255 255 / 0.0605);
+    --control-hover: rgb(255 255 255 / 0.0837);
+    --control-pressed: rgb(255 255 255 / 0.0326);
+    --control-stroke: rgb(255 255 255 / 0.0698);
+    --control-stroke-bottom: rgb(255 255 255 / 0.0465);
+    --input: rgb(255 255 255 / 0.0605);
+    --input-focus: rgb(30 30 30 / 0.7);
+    --input-stroke-bottom: rgb(255 255 255 / 0.5442);
+    --subtle-hover: rgb(255 255 255 / 0.0605);
+    --subtle-pressed: rgb(255 255 255 / 0.0419);
+    --divider: rgb(255 255 255 / 0.0837);
+    --accent: #60cdff;
+    --accent-hover: #5bbae8;
+    --accent-text: #000000;
+    --accent-link: #99ebff;
+    --progress-track: rgb(255 255 255 / 0.5442);
+    --focus: #ffffff;
+    --smoke: rgb(0 0 0 / 0.3);
+    --dialog: #2b2b2b;
+    --dialog-footer: #202020;
+    --info-bg: rgb(255 255 255 / 0.0326);
+    --info-fg: #60cdff;
+    --success-bg: #393d1b;
+    --success-fg: #6ccb5f;
+    --caution-bg: #433519;
+    --caution-fg: #fce100;
+    --critical-bg: #442726;
+    --critical-fg: #ff99a4;
+    --shadow-dialog: 0 32px 64px rgb(0 0 0 / 0.37), 0 2px 21px rgb(0 0 0 / 0.37);
   }
 }
 
@@ -37,355 +91,709 @@
   box-sizing: border-box;
 }
 
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
+  font-family: "Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  /* Desktop apps don't let you select their chrome. */
+  user-select: none;
+  cursor: default;
+  -webkit-font-smoothing: antialiased;
 }
 
 h1,
-h2 {
+h2,
+p {
   margin: 0;
 }
 
+/* Title: 28/36 semibold. */
 h1 {
-  font-size: 18px;
+  font-family: "Segoe UI Variable Display", "Segoe UI Variable", "Segoe UI", sans-serif;
+  font-size: 28px;
+  line-height: 36px;
+  font-weight: 600;
 }
 
+/* Body strong: 14/20 semibold. */
 h2 {
-  font-size: 13px;
+  font-size: 14px;
+  line-height: 20px;
   font-weight: 600;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
+
+strong {
+  font-weight: 600;
+}
+
+.caption {
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.secondary-text {
+  color: var(--text-2);
+}
+
+.tertiary-text {
+  color: var(--text-3);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.selectable,
+input {
+  user-select: text;
+}
+
+.ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icon {
+  font-family: "Segoe Fluent Icons", "Segoe MDL2 Assets";
+  font-size: 16px;
+  line-height: 1;
+  font-style: normal;
+  font-weight: normal;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+
+/* ---------- Shell: navigation pane + content ---------- */
 
 .app {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 16px 8px;
-}
-
-.tabs {
-  display: flex;
-  gap: 4px;
-  padding: 0 12px;
-  border-bottom: 1px solid var(--border);
-}
-
-.tab {
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  border-radius: 0;
-  padding: 8px 10px;
-  color: var(--muted);
-}
-
-.tab.selected {
-  color: var(--text);
-  border-bottom-color: var(--accent);
-}
-
-.content {
-  flex: 1;
-  padding: 16px;
-}
-
-.footer {
-  padding: 10px 16px;
-  font-size: 12px;
-  border-top: 1px solid var(--border);
-}
-
-.stack {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.row.wrap {
-  flex-wrap: wrap;
-}
-
-.row.end {
-  justify-content: flex-end;
-}
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px;
-}
-
-.hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  padding: 24px 14px;
-}
-
-.countdown {
-  font-size: 44px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
-}
-
-.progress {
-  width: 100%;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--border);
-  overflow: hidden;
-}
-
-.progress > div {
+  display: grid;
+  grid-template-columns: 220px 1fr;
   height: 100%;
-  background: var(--accent);
 }
 
-.muted {
-  color: var(--muted);
-}
-
-.pill {
-  font-size: 12px;
-  font-weight: 600;
-  padding: 2px 10px;
-  border-radius: 999px;
-  border: 1px solid currentColor;
-}
-
-.pill.idle {
-  color: var(--muted);
-}
-
-.pill.flexible {
-  color: var(--active);
-}
-
-.pill.locked {
-  color: var(--locked);
-}
-
-button {
-  font: inherit;
-  cursor: pointer;
-  border-radius: 8px;
-  padding: 8px 14px;
-  border: 1px solid transparent;
-  color: var(--text);
-}
-
-button:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-
-button.primary {
-  background: var(--accent);
-  color: var(--accent-text);
-  font-weight: 600;
-}
-
-button.secondary {
-  background: transparent;
-  border-color: var(--border);
-}
-
-button.danger {
-  background: var(--danger);
-  color: var(--danger-text);
-  font-weight: 600;
-}
-
-button.link {
-  background: none;
-  padding: 4px 6px;
-  color: var(--accent);
-}
-
-button.chip {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  background: transparent;
-  border-color: var(--border);
-}
-
-button.chip span {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-input {
-  font: inherit;
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text);
-}
-
-input:focus,
-button:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 1px;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.field > span,
-.duration span {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.duration {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.duration label {
+.nav {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  padding: 12px 4px 12px 4px;
+  background: var(--pane);
 }
 
-.segmented {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.segmented button {
+.nav-title {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  text-align: left;
-  background: transparent;
-  border-color: var(--border);
+  align-items: center;
+  gap: 12px;
+  padding: 4px 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-.segmented button span {
-  font-size: 12px;
-  color: var(--muted);
+.nav-title img {
+  width: 20px;
+  height: 20px;
 }
 
-.segmented button[aria-checked="true"] {
-  border-color: var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent);
-}
-
-.playlists,
-.presets {
+.nav ul {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
+  gap: 4px;
 }
 
-.playlists li,
-.presets li {
+.nav-item {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px 0;
-  border-bottom: 1px solid var(--border);
+  justify-content: flex-start;
+  gap: 16px;
+  width: 100%;
+  height: 36px;
+  padding: 0 12px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
 }
 
-.playlists li:last-child,
-.presets li:last-child {
-  border-bottom: none;
+.nav-item:hover {
+  background: var(--subtle-hover);
 }
 
-.presets li > div:first-child {
+.nav-item:active {
+  background: var(--subtle-pressed);
+  color: var(--text-2);
+}
+
+.nav-item.selected {
+  background: var(--subtle-hover);
+}
+
+/* The selection pill: 3x16, accent. */
+.nav-item.selected::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 3px;
+  height: 16px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+.nav-status {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
+  line-height: 16px;
+}
+
+.content {
+  overflow-y: auto;
+  padding: 28px 36px 24px;
+}
+
+.page {
   display: flex;
   flex-direction: column;
+  gap: 24px;
+  max-width: 760px;
 }
 
-code {
-  font-family: "Cascadia Mono", Consolas, monospace;
-  font-size: 12px;
-}
-
-.banner {
+.page-header {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding: 10px 12px;
-  margin-bottom: 12px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background: var(--surface);
 }
 
-.banner.error {
-  border-color: var(--danger);
+.footnote {
+  max-width: 760px;
+  margin-top: 28px;
 }
 
-.banner .link {
-  align-self: flex-start;
-  padding-left: 0;
+/* ---------- Sections and cards (Settings style) ---------- */
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cards.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 68px;
+  padding: 12px 16px;
+  border-radius: 4px;
+  border: 1px solid var(--card-stroke);
+  background: var(--card);
+  background-clip: padding-box;
+}
+
+.card.stacked {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.card.empty {
+  min-height: 56px;
+  justify-content: center;
+}
+
+.card-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.card-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.card-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.card-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.card.stacked .card-controls {
+  display: block;
+  padding-left: 36px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+/* ---------- Session hero ---------- */
+
+.hero {
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 28px 24px 24px;
+}
+
+.countdown {
+  font-family: "Segoe UI Variable Display", "Segoe UI Variable", "Segoe UI", sans-serif;
+  font-size: 56px;
+  line-height: 68px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ProgressBar: 1px track, 3px indicator, 4px corners. */
+.progress {
+  position: relative;
+  width: min(360px, 100%);
+  height: 3px;
+  margin: 4px 0;
+}
+
+.progress::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 1px;
+  height: 1px;
+  background: var(--progress-track);
+}
+
+.progress > div {
+  position: relative;
+  height: 3px;
+  border-radius: 4px;
+  background: var(--accent);
+}
+
+/* ---------- Playlists ---------- */
+
+.playlist {
+  min-height: 64px;
+}
+
+.cover {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex: none;
+}
+
+.cover.placeholder {
+  display: grid;
+  place-items: center;
+  background: var(--subtle-hover);
+  color: var(--text-2);
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.input-row input {
+  flex: 1;
+}
+
+.card.stacked .error-text {
+  margin-top: 8px;
+}
+
+.savebar {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--card-stroke);
+  background: var(--dialog);
+  box-shadow: 0 8px 16px rgb(0 0 0 / 0.14);
+}
+
+.savebar > span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.savebar-buttons {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* ---------- Controls ---------- */
+
+button {
+  font: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 5px 12px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--control-stroke);
+  border-bottom-color: var(--control-stroke-bottom);
+  background: var(--control);
+  background-clip: padding-box;
+  color: var(--text);
+  cursor: default;
+  white-space: nowrap;
+}
+
+button:hover:not(:disabled) {
+  background-color: var(--control-hover);
+}
+
+button:active:not(:disabled) {
+  background-color: var(--control-pressed);
+  color: var(--text-2);
+}
+
+button:disabled {
+  color: var(--text-3);
+  opacity: 0.6;
+}
+
+button.accent {
+  background: var(--accent);
+  border-color: rgb(255 255 255 / 0.08);
+  border-bottom-color: rgb(0 0 0 / 0.4);
+  color: var(--accent-text);
+}
+
+button.accent:hover:not(:disabled) {
+  background: var(--accent-hover);
+}
+
+button.accent:active:not(:disabled) {
+  color: var(--accent-text);
+  opacity: 0.8;
+}
+
+button.accent:disabled {
+  background: var(--subtle-hover);
+  border-color: transparent;
+  color: var(--text-3);
+  opacity: 1;
+}
+
+button.subtle,
+button.hyperlink {
+  background: transparent;
+  border-color: transparent;
+}
+
+button.subtle:hover:not(:disabled),
+button.hyperlink:hover:not(:disabled) {
+  background: var(--subtle-hover);
+}
+
+button.hyperlink {
+  min-height: 0;
+  padding: 2px 6px;
+  color: var(--accent-link);
+}
+
+@media (prefers-color-scheme: dark) {
+  button.hyperlink {
+    color: var(--accent);
+  }
+}
+
+button.icon-button {
+  width: 32px;
+  padding: 0;
+}
+
+input {
+  font: inherit;
+  height: 32px;
+  padding: 5px 11px 6px;
+  border-radius: 4px;
+  border: 1px solid var(--control-stroke);
+  border-bottom-color: var(--input-stroke-bottom);
+  background: var(--input);
+  color: var(--text);
+  outline: none;
+}
+
+input::placeholder {
+  color: var(--text-3);
+}
+
+input:hover {
+  background: var(--control-hover);
+}
+
+/* TextBox focus: solid fill and a 2px accent underline. */
+input:focus {
+  background: var(--input-focus);
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 5px;
+}
+
+input[aria-invalid="true"] {
+  border-bottom: 2px solid var(--critical-fg);
+  padding-bottom: 5px;
+}
+
+.name-input {
+  width: 220px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.duration {
+  display: flex;
+  gap: 8px;
+}
+
+.numberbox {
+  position: relative;
+  display: flex;
+}
+
+.numberbox input {
+  width: 68px;
+  padding-right: 24px;
+  font-variant-numeric: tabular-nums;
+  -moz-appearance: textfield;
+}
+
+.numberbox input::-webkit-inner-spin-button,
+.numberbox input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.numberbox .unit {
+  position: absolute;
+  right: 10px;
+  top: 6px;
+  color: var(--text-3);
+  pointer-events: none;
+}
+
+/* RadioButtons. */
+.radios {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+}
+
+.radio input {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--input-stroke-bottom);
+  background: var(--control);
+  flex: none;
+}
+
+.radio input:checked {
+  border: 5px solid var(--accent);
+  background: var(--accent-text);
+  padding: 0;
+}
+
+.radio input:focus {
+  padding: 0;
+}
+
+button:focus-visible,
+.radio input:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 1px;
+}
+
+/* ---------- InfoBar ---------- */
+
+.infobar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 8px 12px 8px 16px;
+  border-radius: 4px;
+  border: 1px solid var(--card-stroke);
+  background: var(--info-bg);
+  max-width: 760px;
+}
+
+.content > .infobar {
+  margin-bottom: 20px;
+}
+
+.infobar-icon {
+  color: var(--info-fg);
+}
+
+.infobar-text {
+  flex: 1;
+}
+
+.infobar.success {
+  background: var(--success-bg);
+}
+
+.infobar.success .infobar-icon {
+  color: var(--success-fg);
+}
+
+.infobar.caution {
+  background: var(--caution-bg);
+}
+
+.infobar.caution .infobar-icon {
+  color: var(--caution-fg);
+}
+
+.infobar.critical {
+  background: var(--critical-bg);
+}
+
+.infobar.critical .infobar-icon {
+  color: var(--critical-fg);
 }
 
 .error-text {
-  margin: 0;
-  color: var(--danger);
+  color: var(--critical-fg);
 }
 
-.backdrop {
+/* ---------- ContentDialog ---------- */
+
+.smoke {
   position: fixed;
   inset: 0;
   display: grid;
   place-items: center;
-  padding: 16px;
-  background: rgb(0 0 0 / 0.5);
+  padding: 24px;
+  background: var(--smoke);
 }
 
 .dialog {
+  width: 100%;
+  max-width: 448px;
+  border-radius: 8px;
+  border: 1px solid var(--card-stroke);
+  background: var(--dialog);
+  box-shadow: var(--shadow-dialog);
+  overflow: hidden;
+}
+
+.dialog-body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  width: 100%;
-  max-width: 380px;
-  padding: 18px;
-  border-radius: var(--radius);
-  background: var(--surface);
-  border: 1px solid var(--border);
+  padding: 24px;
 }
 
-.dialog h2 {
-  font-size: 16px;
-  color: var(--text);
-  text-transform: none;
-  letter-spacing: 0;
+.dialog-body h2 {
+  font-family: "Segoe UI Variable Display", "Segoe UI Variable", "Segoe UI", sans-serif;
+  font-size: 20px;
+  line-height: 28px;
 }
 
-.dialog p {
-  margin: 0;
+.dialog-footer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 24px;
+  border-top: 1px solid var(--card-stroke);
+  background: var(--dialog-footer);
+}
+
+/* ---------- Scrollbar ---------- */
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 4px solid transparent;
+  border-radius: 6px;
+  background: var(--text-3) padding-box;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .progress > div {
+    transition: width 1s linear;
+  }
 }

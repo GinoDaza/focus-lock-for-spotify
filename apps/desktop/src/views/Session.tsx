@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { api, errorMessage } from "../api";
+import type { Tab } from "../App";
 import { ConfirmLock } from "../components/ConfirmLock";
 import { DurationInput } from "../components/DurationInput";
+import { Icon } from "../components/Icon";
+import { Card, InfoBar, Page, Section } from "../components/Layout";
 import { ModeToggle } from "../components/ModeToggle";
 import { PlaylistList } from "../components/PlaylistList";
 import {
@@ -21,22 +24,24 @@ export function SessionView({
   session,
   remaining,
   onChange,
+  onNavigate,
 }: {
   session: SessionInfo | null;
   remaining: number;
   onChange: Refresh;
+  onNavigate: (tab: Tab) => void;
 }) {
   return session ? (
     <ActiveSession session={session} remaining={remaining} onChange={onChange} />
   ) : (
-    <StartSession onChange={onChange} />
+    <StartSession onChange={onChange} onNavigate={onNavigate} />
   );
 }
 
 const EXTEND = [
-  ["+15m", 15 * 60],
-  ["+1h", 3_600],
-  ["+1d", 86_400],
+  ["+15 min", 15 * 60],
+  ["+1 hour", 3_600],
+  ["+1 day", 86_400],
 ] as const;
 
 function ActiveSession({
@@ -58,58 +63,68 @@ function ActiveSession({
   };
 
   return (
-    <section className="stack">
+    <Page title="Session">
+      {locked && (
+        <InfoBar severity="caution" icon="lock" title="Locked.">
+          You can add time, but this session can't be ended early.
+        </InfoBar>
+      )}
+
       <div className="card hero">
-        <span className="muted">{locked ? "Locked session" : "Flexible session"}</span>
-        <div className="countdown" aria-live="off">
-          {formatCountdown(remaining)}
-        </div>
-        <div className="progress" aria-hidden="true">
+        <span className="secondary-text">Time remaining</span>
+        <div className="countdown">{formatCountdown(remaining)}</div>
+        <div
+          className="progress"
+          role="progressbar"
+          aria-label="Session progress"
+          aria-valuenow={Math.round(progress * 100)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
           <div style={{ width: `${Math.min(100, Math.max(0, progress * 100))}%` }} />
         </div>
-        <span className="muted">
-          Ends {endsAt(remaining, new Date())} · {formatDuration(session.duration)} in total
+        <span className="caption secondary-text">
+          Ends at {endsAt(remaining, new Date())} · {formatDuration(session.duration)}{" "}
+          {locked ? "locked" : "flexible"} session
         </span>
       </div>
 
-      <div className="card stack">
-        <h2>Add time</h2>
-        <div className="row">
+      <Section title="Adjust">
+        <Card icon="stopwatch" header="Add time" description="Extends the current session.">
           {EXTEND.map(([label, seconds]) => (
             <button
               key={label}
-              className="secondary"
               disabled={action.busy}
               onClick={() => void act(() => api.extend(seconds))}
             >
               {label}
             </button>
           ))}
-        </div>
-      </div>
+        </Card>
+        {!locked && (
+          <>
+            <Card
+              icon="lock"
+              header="Lock session"
+              description="Commit to the remaining time. This can't be undone."
+            >
+              <button disabled={action.busy} onClick={() => setConfirming(true)}>
+                Lock…
+              </button>
+            </Card>
+            <Card icon="cancel" header="End session" description="Spotify goes back to normal.">
+              <button disabled={action.busy} onClick={() => void act(api.cancel)}>
+                End now
+              </button>
+            </Card>
+          </>
+        )}
+        {action.error && !confirming && <p className="error-text">{action.error}</p>}
+      </Section>
 
-      {locked ? (
-        <p className="muted">This session is locked. It can't be ended early, only extended.</p>
-      ) : (
-        <div className="row">
-          <button className="danger" disabled={action.busy} onClick={() => setConfirming(true)}>
-            Lock it
-          </button>
-          <button
-            className="secondary"
-            disabled={action.busy}
-            onClick={() => void act(api.cancel)}
-          >
-            End session
-          </button>
-        </div>
-      )}
-      {action.error && !confirming && <p className="error-text">{action.error}</p>}
-
-      <div className="card stack">
-        <h2>Allowed playlists</h2>
+      <Section title="Allowed playlists">
         <PlaylistList ids={session.allowlist} />
-      </div>
+      </Section>
 
       {confirming && (
         <ConfirmLock
@@ -129,7 +144,7 @@ function ActiveSession({
           }
         />
       )}
-    </section>
+    </Page>
   );
 }
 
@@ -138,7 +153,13 @@ interface Pending {
   start: () => Promise<void>;
 }
 
-function StartSession({ onChange }: { onChange: Refresh }) {
+function StartSession({
+  onChange,
+  onNavigate,
+}: {
+  onChange: Refresh;
+  onNavigate: (tab: Tab) => void;
+}) {
   const [allowlist, setAllowlist] = useState<Allowlist | null>(null);
   const [presets, setPresets] = useState<Preset[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -169,58 +190,74 @@ function StartSession({ onChange }: { onChange: Refresh }) {
   };
 
   return (
-    <section className="stack">
-      {loadError && <p className="error-text">{loadError}</p>}
+    <Page title="Session" description="Focus with only your allowed playlists in Spotify.">
+      {loadError && <InfoBar severity="critical" title="Couldn't load your settings.">{loadError}</InfoBar>}
       {noPlaylists && (
-        <div className="banner">Add at least one playlist in the Playlists tab first.</div>
+        <InfoBar
+          severity="info"
+          title="No playlists yet."
+          action={<button onClick={() => onNavigate("playlists")}>Add playlists</button>}
+        >
+          Add at least one before starting a session.
+        </InfoBar>
       )}
 
+      <Section title="New session">
+        <Card icon="stopwatch" header="Duration" description="Up to 30 days.">
+          <DurationInput value={parts} onChange={setParts} />
+        </Card>
+        <Card icon="lock" header="Mode" stacked>
+          <ModeToggle value={mode} onChange={setMode} />
+        </Card>
+        <div className="actions">
+          {invalid && seconds > 0 && <span className="error-text">{invalid}</span>}
+          {action.error && !pending && <span className="error-text">{action.error}</span>}
+          <button
+            className="accent"
+            disabled={action.busy || invalid !== null || allowlist === null || noPlaylists}
+            onClick={() => {
+              if (allowlist) void begin(mode, seconds, () => api.start(mode, seconds, allowlist));
+            }}
+          >
+            <Icon name="play" />
+            Start {invalid ? "" : formatDuration(seconds)}
+          </button>
+        </div>
+      </Section>
+
       {presets.length > 0 && (
-        <div className="card stack">
-          <h2>Presets</h2>
-          <div className="row wrap">
-            {presets.map((preset) => (
+        <Section title="Presets">
+          {presets.map((preset) => (
+            <Card
+              key={preset.name}
+              icon={preset.mode === "locked" ? "lock" : "clock"}
+              header={preset.name}
+              description={`${formatDuration(preset.duration)} · ${preset.mode === "locked" ? "Locked" : "Flexible"}`}
+            >
               <button
-                key={preset.name}
-                className="chip"
                 disabled={action.busy || noPlaylists}
                 onClick={() =>
                   void begin(preset.mode, preset.duration, () => api.startPreset(preset.name))
                 }
               >
-                <strong>{preset.name}</strong>
-                <span>
-                  {formatDuration(preset.duration)}
-                  {preset.mode === "locked" ? " · locked" : ""}
-                </span>
+                Start
               </button>
-            ))}
-          </div>
-        </div>
+            </Card>
+          ))}
+        </Section>
       )}
 
-      <div className="card stack">
-        <h2>New session</h2>
-        <DurationInput value={parts} onChange={setParts} />
-        <ModeToggle value={mode} onChange={setMode} />
-        {invalid && seconds > 0 && <p className="error-text">{invalid}</p>}
-        <button
-          className="primary"
-          disabled={action.busy || invalid !== null || allowlist === null || noPlaylists}
-          onClick={() => {
-            if (allowlist) void begin(mode, seconds, () => api.start(mode, seconds, allowlist));
-          }}
-        >
-          Start {formatDuration(seconds)}
-        </button>
-        {action.error && !pending && <p className="error-text">{action.error}</p>}
-      </div>
-
       {allowlist && allowlist.length > 0 && (
-        <div className="card stack">
-          <h2>Allowed playlists</h2>
+        <Section
+          title="Allowed playlists"
+          action={
+            <button className="hyperlink" onClick={() => onNavigate("playlists")}>
+              Edit
+            </button>
+          }
+        >
           <PlaylistList ids={allowlist} />
-        </div>
+        </Section>
       )}
 
       {pending && (
@@ -241,6 +278,6 @@ function StartSession({ onChange }: { onChange: Refresh }) {
           }
         />
       )}
-    </section>
+    </Page>
   );
 }

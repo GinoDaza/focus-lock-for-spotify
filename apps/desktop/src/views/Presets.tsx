@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import { api, errorMessage } from "../api";
 import { ConfirmLock } from "../components/ConfirmLock";
 import { DurationInput } from "../components/DurationInput";
+import { Icon } from "../components/Icon";
+import { Card, InfoBar, Page, Section } from "../components/Layout";
 import { ModeToggle } from "../components/ModeToggle";
 import { type DurationParts, durationError, formatDuration, toSeconds } from "../format";
 import { useAction } from "../hooks";
@@ -37,6 +39,7 @@ export function PresetsView({
 
   const seconds = toSeconds(parts);
   const invalid = name.trim() === "" ? "Give it a name." : durationError(seconds);
+  const replaces = presets?.some((p) => p.name === name.trim()) ?? false;
 
   const save = async () => {
     const preset = { name: name.trim(), mode, duration: seconds };
@@ -54,64 +57,67 @@ export function PresetsView({
   };
 
   return (
-    <section className="stack">
-      {loadError && <p className="error-text">{loadError}</p>}
+    <Page title="Presets" description="Session lengths you use often, one click away.">
+      {loadError && <InfoBar severity="critical" title="Couldn't load presets.">{loadError}</InfoBar>}
 
-      <div className="card stack">
-        <h2>Saved presets</h2>
-        {presets?.length === 0 && <p className="muted">No presets yet.</p>}
-        <ul className="presets">
-          {presets?.map((preset) => (
-            <li key={preset.name}>
-              <div>
-                <strong>{preset.name}</strong>
-                <span className="muted">
-                  {formatDuration(preset.duration)} · {preset.mode}
-                </span>
-              </div>
-              <div className="row">
-                <button
-                  className="secondary"
-                  disabled={active || action.busy}
-                  title={active ? "A session is already running" : undefined}
-                  onClick={() =>
-                    preset.mode === "locked" ? setConfirming(preset) : void start(preset)
-                  }
-                >
-                  Start
-                </button>
-                <button
-                  className="link"
-                  disabled={action.busy}
-                  onClick={() =>
-                    void action.run(() => api.deletePreset(preset.name)).then(() => load())
-                  }
-                >
-                  Delete
-                </button>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
+      <Section title="Saved">
+        {presets?.length === 0 && (
+          <div className="card empty secondary-text">No presets yet. Create one below.</div>
+        )}
+        {presets?.map((preset) => (
+          <Card
+            key={preset.name}
+            icon={preset.mode === "locked" ? "lock" : "clock"}
+            header={preset.name}
+            description={`${formatDuration(preset.duration)} · ${preset.mode === "locked" ? "Locked" : "Flexible"}`}
+          >
+            <button
+              disabled={active || action.busy}
+              title={active ? "A session is already running" : undefined}
+              onClick={() => (preset.mode === "locked" ? setConfirming(preset) : void start(preset))}
+            >
+              Start
+            </button>
+            <button
+              className="subtle icon-button"
+              title="Delete"
+              aria-label={`Delete ${preset.name}`}
+              disabled={action.busy}
+              onClick={() => void action.run(() => api.deletePreset(preset.name)).then(() => load())}
+            >
+              <Icon name="delete" />
+            </button>
+          </Card>
+        ))}
+      </Section>
 
-      <div className="card stack">
-        <h2>New preset</h2>
-        <label className="field">
-          <span>Name</span>
-          <input value={name} placeholder="Study" onChange={(e) => setName(e.target.value)} />
-        </label>
-        <DurationInput value={parts} onChange={setParts} />
-        <ModeToggle value={mode} onChange={setMode} />
-        <button
-          className="primary"
-          disabled={invalid !== null || action.busy}
-          onClick={() => void save()}
-        >
-          Save preset
-        </button>
-        {action.error && !confirming && <p className="error-text">{action.error}</p>}
-      </div>
+      <Section title="New preset">
+        <Card icon="presets" header="Name">
+          <input
+            className="name-input"
+            value={name}
+            placeholder="Study"
+            onChange={(e) => setName(e.target.value)}
+          />
+        </Card>
+        <Card icon="stopwatch" header="Duration" description="Up to 30 days.">
+          <DurationInput value={parts} onChange={setParts} />
+        </Card>
+        <Card icon="lock" header="Mode" stacked>
+          <ModeToggle value={mode} onChange={setMode} />
+        </Card>
+        <div className="actions">
+          {replaces && <span className="caption secondary-text">Replaces the preset with this name.</span>}
+          {action.error && !confirming && <span className="error-text">{action.error}</span>}
+          <button
+            className="accent"
+            disabled={invalid !== null || action.busy}
+            onClick={() => void save()}
+          >
+            Save preset
+          </button>
+        </div>
+      </Section>
 
       {confirming && (
         <ConfirmLock
@@ -125,6 +131,6 @@ export function PresetsView({
           onConfirm={() => void start(confirming)}
         />
       )}
-    </section>
+    </Page>
   );
 }

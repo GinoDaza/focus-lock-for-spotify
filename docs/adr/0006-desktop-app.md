@@ -15,6 +15,8 @@ Sessions live in the service. The app only reads the state and sends requests, s
 - **No tray icon in v0.1.** The app is a normal window. Closing it exits the process and leaves the session running; the footer says so. Nothing is resident besides the service.
 - **No state in the app.** It reads `status` when it opens, every 5 s while open, and when the window becomes visible. The countdown ticks locally between reads.
 - **The service stays the only authority.** The UI never decides what is allowed. It still adds friction where the CLI does: locking a session (starting one, starting a locked preset, or hardening) asks the user to type `lock`, and a locked session only offers adding time.
+- **Windows 11 look.** The CSS follows the WinUI theme resources: Segoe UI Variable and its type ramp, Segoe Fluent Icons, 4px/8px corners, Settings-style cards, a NavigationView-style pane, InfoBars and a ContentDialog. It uses the default Windows accent because WebView2 can't read the user's.
+- **Playlist names and covers** come from Spotify's public oEmbed endpoint (`open.spotify.com/oembed`, no account or token). They are cached in `localStorage`. On failure the app shows the ID. The CSP allows only that host and Spotify's image CDN.
 - The blocking control client moved from the CLI into `crates/client` (`tunelock-client`), shared by the CLI and the app.
 - The app's crate is a workspace member but not a default member, so `cargo test` and `cargo clippy` on Linux do not need a WebView toolchain. Windows builds name it with `-p tunelock-desktop`.
 
@@ -22,5 +24,5 @@ Sessions live in the service. The app only reads the state and sends requests, s
 
 - No memory cost when the window is closed. While it is open, the app costs about what a browser tab does.
 - Users don't get a constant "Tunelock is running" indicator. A tray icon can come later as part of the frontend without touching the service.
-- Playlists are shown by ID. Showing names would need the Spotify Web API and is left for later.
+- Opening the app sends the allowlisted playlist IDs to Spotify's oEmbed endpoint. Spotify already knows what the user plays, so this reveals nothing new.
 - Cross-compiling the app from WSL needs `llvm-rc` (from the `llvm` package) for the Windows resources.

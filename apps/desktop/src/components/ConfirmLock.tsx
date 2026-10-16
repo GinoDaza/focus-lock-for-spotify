@@ -21,42 +21,43 @@ export function ConfirmLock({
   const ready = typed.trim().toLowerCase() === WORD;
 
   return (
-    <div className="backdrop" onClick={onClose}>
+    <div className="smoke" onMouseDown={onClose}>
       <div
         className="dialog"
         role="alertdialog"
         aria-modal="true"
         aria-labelledby="confirm-title"
-        onClick={(e) => e.stopPropagation()}
+        aria-describedby="confirm-body"
+        onMouseDown={(e) => e.stopPropagation()}
       >
-        <h2 id="confirm-title">Lock this session?</h2>
-        <p>
-          You won't be able to end it for <strong>{formatDuration(seconds)}</strong>, until{" "}
-          <strong>{endsAt(seconds, new Date())}</strong>. Spotify will only play your allowed
-          playlists until then, and you can only add time.
-        </p>
-        <label className="field">
-          <span>
-            Type <code>{WORD}</code> to confirm
-          </span>
-          <input
-            autoFocus
-            value={typed}
-            onChange={(e) => setTyped(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && ready && !busy) onConfirm();
-              if (e.key === "Escape") onClose();
-            }}
-          />
-        </label>
-        {error && <p className="error-text">{error}</p>}
-        <div className="row end">
-          <button className="secondary" onClick={onClose}>
-            Cancel
+        <div className="dialog-body">
+          <h2 id="confirm-title">Lock this session?</h2>
+          <p id="confirm-body">
+            You won't be able to end it for <strong>{formatDuration(seconds)}</strong>, until{" "}
+            <strong>{endsAt(seconds, new Date())}</strong>. Until then Spotify only plays your
+            allowed playlists, and you can only add time.
+          </p>
+          <label className="field">
+            <span>
+              Type <strong>{WORD}</strong> to confirm
+            </span>
+            <input
+              autoFocus
+              value={typed}
+              onChange={(e) => setTyped(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && ready && !busy) onConfirm();
+                if (e.key === "Escape") onClose();
+              }}
+            />
+          </label>
+          {error && <p className="error-text">{error}</p>}
+        </div>
+        <div className="dialog-footer">
+          <button className="accent" disabled={!ready || busy} onClick={onConfirm}>
+            Lock session
           </button>
-          <button className="danger" disabled={!ready || busy} onClick={onConfirm}>
-            Lock
-          </button>
+          <button onClick={onClose}>Cancel</button>
         </div>
       </div>
     </div>

@@ -1,16 +1,19 @@
 import { useState } from "react";
+import { Icon, type IconName } from "./components/Icon";
+import { InfoBar } from "./components/Layout";
+import { formatCountdown } from "./format";
 import { useStatus } from "./hooks";
 import { PlaylistsView } from "./views/Playlists";
 import { PresetsView } from "./views/Presets";
 import { SessionView } from "./views/Session";
 
-const TABS = [
-  ["session", "Session"],
-  ["playlists", "Playlists"],
-  ["presets", "Presets"],
-] as const;
+export type Tab = "session" | "playlists" | "presets";
 
-type Tab = (typeof TABS)[number][0];
+const NAV: [Tab, string, IconName][] = [
+  ["session", "Session", "clock"],
+  ["playlists", "Playlists", "music"],
+  ["presets", "Presets", "presets"],
+];
 
 export function App() {
   const live = useStatus();
@@ -19,52 +22,70 @@ export function App() {
 
   return (
     <div className="app">
-      <header className="header">
-        <h1>Tunelock</h1>
-        <span className={`pill ${session ? session.mode : "idle"}`}>
-          {session ? (session.mode === "locked" ? "Locked" : "Active") : "Idle"}
-        </span>
-      </header>
-
-      <nav className="tabs" role="tablist">
-        {TABS.map(([id, label]) => (
-          <button
-            key={id}
-            role="tab"
-            aria-selected={tab === id}
-            className={tab === id ? "tab selected" : "tab"}
-            onClick={() => setTab(id)}
-          >
-            {label}
-          </button>
-        ))}
+      <nav className="nav" aria-label="Main">
+        <div className="nav-title">
+          <img src="/icon.png" alt="" />
+          <span>Tunelock</span>
+        </div>
+        <ul>
+          {NAV.map(([id, label, icon]) => (
+            <li key={id}>
+              <button
+                className={tab === id ? "nav-item selected" : "nav-item"}
+                aria-current={tab === id ? "page" : undefined}
+                onClick={() => setTab(id)}
+              >
+                <Icon name={icon} />
+                {label}
+              </button>
+            </li>
+          ))}
+        </ul>
+        <div className="nav-status" aria-live="polite">
+          {session ? (
+            <>
+              <Icon name={session.mode === "locked" ? "lock" : "clock"} />
+              <span>
+                {session.mode === "locked" ? "Locked" : "Active"} ·{" "}
+                <span className="tabular">{formatCountdown(live.remaining)}</span>
+              </span>
+            </>
+          ) : (
+            <span className="tertiary-text">
+              {live.error ? "Service unavailable" : live.status ? "No active session" : "Connecting…"}
+            </span>
+          )}
+        </div>
       </nav>
 
       <main className="content">
         {live.error && (
-          <div className="banner error" role="alert">
-            <strong>Can't reach the Tunelock service.</strong>
-            <span>{live.error}</span>
-            <button className="link" onClick={() => void live.refresh()}>
-              Retry
-            </button>
-          </div>
+          <InfoBar
+            severity="critical"
+            title="Can't reach the Tunelock service."
+            action={<button onClick={() => void live.refresh()}>Retry</button>}
+          >
+            Make sure it's installed and running. <span className="tertiary-text">({live.error})</span>
+          </InfoBar>
         )}
-        {live.status === null ? (
-          !live.error && <p className="muted">Connecting…</p>
-        ) : tab === "session" ? (
-          <SessionView session={session} remaining={live.remaining} onChange={live.refresh} />
+        {live.status === null ? null : tab === "session" ? (
+          <SessionView
+            session={session}
+            remaining={live.remaining}
+            onChange={live.refresh}
+            onNavigate={setTab}
+          />
         ) : tab === "playlists" ? (
           <PlaylistsView session={session} />
         ) : (
           <PresetsView active={session !== null} onChange={live.refresh} />
         )}
+        {live.status && (
+          <p className="footnote caption tertiary-text">
+            Closing this window doesn't end a session. Service {live.status.service_version}.
+          </p>
+        )}
       </main>
-
-      <footer className="footer muted">
-        {live.status ? `Service ${live.status.service_version}` : " "} · Closing this window does not
-        end a session.
-      </footer>
     </div>
   );
 }

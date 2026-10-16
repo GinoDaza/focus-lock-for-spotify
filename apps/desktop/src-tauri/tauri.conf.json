@@ -13,14 +13,14 @@
       {
         "label": "main",
         "title": "Tunelock",
-        "width": 480,
-        "height": 700,
-        "minWidth": 400,
-        "minHeight": 560
+        "width": 880,
+        "height": 640,
+        "minWidth": 680,
+        "minHeight": 480
       }
     ],
     "security": {
-      "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:"
+      "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.spotifycdn.com https://i.scdn.co; connect-src ipc: http://ipc.localhost https://open.spotify.com"
     }
   },
   "bundle": {
