@@ -64,7 +64,8 @@ describe("landingPath", () => {
 describe("sessionCss", () => {
   it("keeps allowed library rows and hides navigation", () => {
     const css = sessionCss([FOCUS]);
-    expect(css).toContain('[data-testid="search-input"]');
+    expect(css).toContain("[data-top-bar-search]");
+    expect(css).toContain(".main-globalNav-navLink");
     expect(css).toContain(`:not(:has([id="listrow-title-spotify:playlist:${FOCUS}"]))`);
     expect(css.trim().endsWith("{ display: none !important; }")).toBe(true);
   });

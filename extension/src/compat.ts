@@ -1,17 +1,30 @@
 // Every assumption about Spotify's internals lives here, so a client update
 // that breaks something should only need changes in this file.
-// Verified against Spotify 1.3.5.3058.
+// Verified against Spotify 1.3.5.3058 (Windows).
 
 /** Routes that never lead to other music. */
 export const ALWAYS_ALLOWED_PATHS = ["/queue", "/lyrics"];
 
 export const playlistPath = (id: string): string => `/playlist/${id}`;
 
-/** Elements that only exist to find other music. Hidden during a session. */
+/**
+ * Elements that only exist to find other music. Hidden during a session.
+ *
+ * Production builds strip `data-testid`, so these rely on attributes that
+ * survive: the top-bar search input carries `data-top-bar-search`, and
+ * Spicetify maps the nav classes to stable `main-globalNav-*` names. The
+ * first selector hides every ancestor of the search box that does not also
+ * hold the history buttons or the right-hand controls, which is the whole
+ * home + search + browse section.
+ */
 export const HIDDEN_SELECTORS = [
-  '[data-testid="search-input"]',
-  '[data-testid="home-button"]',
-  '[data-testid="browse-button"]',
+  ":is(div, form):has([data-top-bar-search])" +
+    ":not(:has(.main-globalNav-historyButtonsWrapper))" +
+    ":not(:has(.main-globalNav-contentRight))",
+  "[data-top-bar-search]",
+  ".main-globalNav-navLink",
+  // Notifications (what's new) and friend activity.
+  ".main-actionButtons-button",
 ];
 
 /** Rows of the "Your Library" sidebar. */
