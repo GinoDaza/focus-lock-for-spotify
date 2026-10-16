@@ -50,8 +50,8 @@ Done and verified end-to-end on the user's machine (Spotify 1.3.5.3058, Windows,
 - **M2:** extension. It redirects routes, pauses other contexts, hides search, home, browse, the bell and friend activity, and filters the library sidebar.
 
 **M3 (Windows integration), in progress** (see `docs/plan.md`, ADR 0004 and ADR 0005):
-- Installed and verified on the user's machine: Windows service (LocalSystem, auto-start, recovery), pipe access for interactive users, a 3-minute locked session with the extension reporting in.
-- Implemented, pending test on Windows: re-applying Spicetify after Spotify updates (`spicetify -q -n backup apply` as the console user) and protecting `%APPDATA%\Spotify\Apps` and both Spicetify folders during locked sessions.
+- Installed and verified on the user's machine: Windows service (LocalSystem, auto-start, recovery), pipe access for interactive users, locked sessions with the extension reporting in, and folder protection (writes denied during the lock, Spotify keeps playing, ACEs removed when it ends).
+- Implemented, verified only when Spotify next updates: re-applying Spicetify (`spicetify -q -n backup apply` as the console user). Check `C:\ProgramData\Tunelock\service.log`.
 - To update the installed service: stop it outside a session, replace `C:\Program Files\Tunelock\tunelock-service.exe`, start it (elevated prompt; the user does it).
 
 After M3: M4 (Tauri UI), M5 (NSIS installer, CI, release, SignPath).
