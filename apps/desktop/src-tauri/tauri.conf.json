@@ -14,9 +14,9 @@
         "label": "main",
         "title": "Tunelock",
         "width": 880,
-        "height": 640,
+        "height": 760,
         "minWidth": 680,
-        "minHeight": 480,
+        "minHeight": 560,
         "center": true
       }
     ],
