@@ -82,7 +82,7 @@ export function App() {
             title="Can't reach the Focus Lock service."
             action={<button onClick={() => void live.refresh()}>Retry</button>}
           >
-            Make sure it's installed and running. <span className="tertiary-text">({live.error})</span>
+            Make sure it's installed and running. If it won't start, check whether another program is using port 39817; the reason is in the service log. <span className="tertiary-text">({live.error})</span>
           </InfoBar>
         )}
         {tab === "setup" ? (

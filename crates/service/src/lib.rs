@@ -15,6 +15,7 @@ pub mod windows;
 use std::future::Future;
 use std::path::{Path, PathBuf};
 
+use anyhow::Context;
 use chrono::Utc;
 use interprocess::local_socket::tokio::Listener;
 use tokio::net::TcpListener;
@@ -54,7 +55,9 @@ impl Service {
         }
         let app = App::new(Engine::load(Box::new(store), Utc::now()));
         let control = control::bind(&options.socket, options.system)?;
-        let extension = extension::bind(options.port).await?;
+        let extension = extension::bind(options.port).await.with_context(|| {
+            format!("port {} is already in use by another program", options.port)
+        })?;
         tracing::info!(
             data_dir = %options.data_dir.display(),
             socket = options.socket,
@@ -132,7 +135,6 @@ pub async fn run_console(options: &Options) -> anyhow::Result<()> {
 
 #[cfg(windows)]
 fn protect_data_dir(dir: &Path) -> anyhow::Result<()> {
-    use anyhow::Context;
     windows::acl::set_protected_dacl(dir, windows::acl::SYSTEM_AND_ADMINS_ONLY)
         .with_context(|| format!("restricting access to {}", dir.display()))
 }
