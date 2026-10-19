@@ -34,31 +34,24 @@ const LIBRARY_ROW = '#Desktop_LeftSidebar_Id [role="row"]';
 const libraryRowFor = (id: string): string => `[id="listrow-title-spotify:playlist:${id}"]`;
 
 /**
- * Filter chips of the library sidebar (Playlists, Podcasts, ...) and the
- * button that clears the selected one. The unfiltered list loads lazily and
- * can leave allowed playlists out, so a session keeps "Playlists" selected.
+ * Filter chips of the library sidebar (Playlists, Podcasts, ...) are Encore
+ * chips with `role="checkbox"`; the selected one has `aria-checked="true"`.
+ * The unfiltered list loads lazily and can leave allowed playlists out, so a
+ * session keeps a filter selected. `chipClear` is the button that clears it.
  */
-const LIBRARY_CHIP = '#Desktop_LeftSidebar_Id [data-encore-id="chipFilter"]';
+const LIBRARY_CHIP = '#Desktop_LeftSidebar_Id [data-encore-id="chip"]';
 const LIBRARY_CHIP_CLEAR = '#Desktop_LeftSidebar_Id [data-encore-id="chipClear"]';
 
 /**
- * Selects the first chip, which is "Playlists" in every locale. Clears any
- * other selection first.
+ * Selects the first chip, which is "Playlists" in every locale, when no chip
+ * is selected.
  */
-export function createPlaylistsFilter(): () => void {
-  let cleared = false;
-  return () => {
-    const clear = document.querySelector<HTMLElement>(LIBRARY_CHIP_CLEAR);
-    if (clear) {
-      if (!cleared) {
-        cleared = true;
-        clear.click();
-      }
-      return;
-    }
-    cleared = true;
-    document.querySelector<HTMLElement>(LIBRARY_CHIP)?.click();
-  };
+export function ensurePlaylistsFilter(): void {
+  const chips = document.querySelectorAll<HTMLElement>(LIBRARY_CHIP);
+  if (chips.length === 0) return;
+  if (![...chips].some((chip) => chip.getAttribute("aria-checked") === "true")) {
+    chips[0]?.click();
+  }
 }
 
 /** CSS that hides navigation and every library row except allowed playlists. */

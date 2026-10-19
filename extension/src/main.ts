@@ -3,7 +3,7 @@
 // reads the state from the local service.
 
 import {
-  createPlaylistsFilter,
+  ensurePlaylistsFilter,
   history,
   isPlaying,
   isReady,
@@ -110,7 +110,7 @@ function apply(next: Enforcement | null): void {
   if (next) {
     if (!wasActive) {
       stopListening = history()?.listen((location) => enforceRoute(location.pathname)) ?? null;
-      filterTimer = window.setInterval(createPlaylistsFilter(), FILTER_MS);
+      filterTimer = window.setInterval(ensurePlaylistsFilter, FILTER_MS);
     }
     render(next);
     enforceRoute(history()?.location.pathname ?? "/");
