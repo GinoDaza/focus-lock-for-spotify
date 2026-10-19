@@ -3,6 +3,7 @@
 // reads the state from the local service.
 
 import {
+  createPlaylistsFilter,
   history,
   isPlaying,
   isReady,
@@ -21,12 +22,14 @@ import {
 const SERVICE = "http://127.0.0.1:39817";
 const POLL_MS = 2_000;
 const HEARTBEAT_MS = 5_000;
+const FILTER_MS = 500;
 const CACHE_KEY = "focuslock:enforcement";
 const STYLE_ID = "focuslock-style";
 const BADGE_ID = "focuslock-badge";
 
 let current: Enforcement | null = null;
 let stopListening: (() => void) | null = null;
+let filterTimer: number | null = null;
 
 async function fetchState(): Promise<Fetched> {
   try {
@@ -107,6 +110,7 @@ function apply(next: Enforcement | null): void {
   if (next) {
     if (!wasActive) {
       stopListening = history()?.listen((location) => enforceRoute(location.pathname)) ?? null;
+      filterTimer = window.setInterval(createPlaylistsFilter(), FILTER_MS);
     }
     render(next);
     enforceRoute(history()?.location.pathname ?? "/");
@@ -114,6 +118,8 @@ function apply(next: Enforcement | null): void {
   } else if (wasActive) {
     stopListening?.();
     stopListening = null;
+    if (filterTimer !== null) clearInterval(filterTimer);
+    filterTimer = null;
     document.getElementById(STYLE_ID)?.remove();
     document.getElementById(BADGE_ID)?.remove();
   }

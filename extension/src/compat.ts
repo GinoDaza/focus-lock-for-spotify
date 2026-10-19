@@ -33,11 +33,39 @@ const LIBRARY_ROW = '#Desktop_LeftSidebar_Id [role="row"]';
 /** A library row is labelled by an element whose id contains its URI. */
 const libraryRowFor = (id: string): string => `[id="listrow-title-spotify:playlist:${id}"]`;
 
+/**
+ * Filter chips of the library sidebar (Playlists, Podcasts, ...) and the
+ * button that clears the selected one. The unfiltered list loads lazily and
+ * can leave allowed playlists out, so a session keeps "Playlists" selected.
+ */
+const LIBRARY_CHIP = '#Desktop_LeftSidebar_Id [data-encore-id="chipFilter"]';
+const LIBRARY_CHIP_CLEAR = '#Desktop_LeftSidebar_Id [data-encore-id="chipClear"]';
+
+/**
+ * Selects the first chip, which is "Playlists" in every locale. Clears any
+ * other selection first.
+ */
+export function createPlaylistsFilter(): () => void {
+  let cleared = false;
+  return () => {
+    const clear = document.querySelector<HTMLElement>(LIBRARY_CHIP_CLEAR);
+    if (clear) {
+      if (!cleared) {
+        cleared = true;
+        clear.click();
+      }
+      return;
+    }
+    cleared = true;
+    document.querySelector<HTMLElement>(LIBRARY_CHIP)?.click();
+  };
+}
+
 /** CSS that hides navigation and every library row except allowed playlists. */
 export function sessionCss(allowedIds: string[]): string {
   const keep = allowedIds.map(libraryRowFor).join(", ");
   const rows = keep ? `${LIBRARY_ROW}:not(:has(${keep}))` : LIBRARY_ROW;
-  return `${[...HIDDEN_SELECTORS, rows].join(",\n")} { display: none !important; }`;
+  return `${[...HIDDEN_SELECTORS, rows, LIBRARY_CHIP_CLEAR].join(",\n")} { display: none !important; }`;
 }
 
 export function history(): Spicetify.History | undefined {
