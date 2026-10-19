@@ -56,8 +56,8 @@ jobs:
           components: rustfmt, clippy
       - uses: Swatinem/rust-cache@v2
       - run: cargo fmt --all --check
-      - run: cargo clippy --workspace --exclude tunelock-desktop --all-targets --locked -- -D warnings
-      - run: cargo test --workspace --exclude tunelock-desktop --locked
+      - run: cargo clippy --workspace --exclude focuslock-desktop --all-targets --locked -- -D warnings
+      - run: cargo test --workspace --exclude focuslock-desktop --locked
 
   rust-windows:
     name: Rust (Windows, whole workspace)
@@ -86,7 +86,7 @@ jobs:
         shell: bash
         run: |
           mkdir -p target/x86_64-pc-windows-msvc/release
-          touch target/x86_64-pc-windows-msvc/release/tunelock-service.exe target/x86_64-pc-windows-msvc/release/tunelock.exe
+          touch target/x86_64-pc-windows-msvc/release/focuslock-service.exe target/x86_64-pc-windows-msvc/release/focuslock.exe
       - uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy

@@ -17,6 +17,6 @@ All state lives in a single JSON file (`state.json`) in the data directory. Each
 
 The plan proposed SQLite. The data is tiny (one session, a few presets, schedules and playlists), so one JSON file is simpler, needs no native dependency and is readable when debugging. We will move to SQLite only if we add session history or anything else that grows over time.
 
-On Windows the data directory is `%ProgramData%\Tunelock`, restricted to SYSTEM and Administrators (milestone M3).
+On Windows the data directory is `%ProgramData%\FocusLock`, restricted to SYSTEM and Administrators (milestone M3).
 
 If the file is corrupt, the service logs the error and starts fresh instead of refusing to run.

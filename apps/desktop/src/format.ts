@@ -4,10 +4,10 @@ const MINUTE = 60;
 const HOUR = 60 * MINUTE;
 const DAY = 24 * HOUR;
 
-/** Same as the service's limit (`tunelock_core::MAX_DURATION`). */
+/** Same as the service's limit (`focuslock_core::MAX_DURATION`). */
 export const MAX_DURATION = 30 * DAY;
 
-/** `2d 3h 5m`, or `45s` under a minute. Matches `tunelock_core::format_duration`. */
+/** `2d 3h 5m`, or `45s` under a minute. Matches `focuslock_core::format_duration`. */
 export function formatDuration(seconds: number): string {
   const s = Math.max(0, Math.floor(seconds));
   const parts = [

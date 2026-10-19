@@ -6,8 +6,8 @@ use std::path::{Path, PathBuf};
 
 use anyhow::Context;
 use chrono::{DateTime, NaiveDateTime, Utc};
+use focuslock_core::{Allowlist, LockState, Preset, Schedule};
 use serde::{Deserialize, Serialize};
-use tunelock_core::{Allowlist, LockState, Preset, Schedule};
 
 const SCHEMA_VERSION: u32 = 1;
 

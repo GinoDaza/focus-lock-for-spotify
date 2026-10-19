@@ -5,7 +5,7 @@
 
 ## Context
 
-Tunelock needs these parts:
+Focus Lock needs these parts:
 - A lock that survives closing the UI, reboots and system clock changes.
 - A way to restrict the Spotify desktop client to an allowlist of playlists.
 - A small desktop UI.
@@ -16,7 +16,7 @@ The first target is Windows only. The project is open source (GPL-3.0) and maint
 
 - **Core and service: Rust.** The service uses the `windows-service` crate and `tokio`. It produces a native binary with no runtime dependency.
 - **UI ↔ service IPC:** a named pipe (`interprocess` crate) with a restrictive ACL. Messages are serde/JSON types defined in a shared `protocol` crate.
-- **Persistence:** SQLite (`rusqlite`) in `%ProgramData%\Tunelock`.
+- **Persistence:** SQLite (`rusqlite`) in `%ProgramData%\FocusLock`.
 - **Desktop UI:** Tauri v2 with React, TypeScript and Vite, plus a tray icon.
 - **Spotify integration:** a Spicetify extension written in TypeScript and bundled with esbuild into a single `.js` file. It renders its own focus overlay instead of hiding many Spotify selectors. All Spotify-specific selectors and routes live in one compat module.
 - **Installer:** the Tauri NSIS bundler in per-machine mode, with installer hooks that register the service.

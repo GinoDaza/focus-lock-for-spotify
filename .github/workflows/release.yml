@@ -46,7 +46,7 @@ jobs:
         shell: bash
         run: |
           (cd extension && pnpm install --frozen-lockfile && pnpm build)
-          cargo build --release --locked --target x86_64-pc-windows-msvc -p tunelock-service -p tunelock-cli
+          cargo build --release --locked --target x86_64-pc-windows-msvc -p focuslock-service -p focuslock-cli
           (cd apps/desktop && pnpm install --frozen-lockfile)
 
       - uses: tauri-apps/tauri-action@v1
@@ -55,7 +55,7 @@ jobs:
         with:
           projectPath: apps/desktop
           tagName: ${{ github.ref_name }}
-          releaseName: Tunelock ${{ github.ref_name }}
+          releaseName: Focus Lock ${{ github.ref_name }}
           releaseBody: See the assets below to download the installer.
           releaseDraft: true
           args: --target x86_64-pc-windows-msvc

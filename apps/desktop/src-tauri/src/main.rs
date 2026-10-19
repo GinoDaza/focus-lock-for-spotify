@@ -1,24 +1,24 @@
-//! Tunelock desktop app.
+//! Focus Lock desktop app.
 //!
 //! A thin frontend over the service's control channel: it keeps no state of
 //! its own, so closing it never affects a session. Every rule, including
 //! "a locked session cannot be weakened", is enforced by the service.
 //!
-//! It also runs the first-run setup of the Spotify side (`tunelock-setup`),
+//! It also runs the first-run setup of the Spotify side (`focuslock-setup`),
 //! which has to happen as the user rather than in the elevated installer.
 
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use anyhow::bail;
+use focuslock_client::Client;
+use focuslock_core::LockMode;
+use focuslock_protocol::{CONTROL_SOCKET, Request, Response};
+use focuslock_setup::{Paths, SetupStatus};
 use tauri::Manager;
 use tauri::ipc::Channel;
-use tunelock_client::Client;
-use tunelock_core::LockMode;
-use tunelock_protocol::{CONTROL_SOCKET, Request, Response};
-use tunelock_setup::{Paths, SetupStatus};
 
 /// The Spicetify extension shipped with this version of the app.
-const EXTENSION: &[u8] = include_bytes!("../../../../extension/dist/tunelock.js");
+const EXTENSION: &[u8] = include_bytes!("../../../../extension/dist/focuslock.js");
 
 const SPOTIFY_DOWNLOAD: &str = "https://www.spotify.com/download/windows/";
 
@@ -52,7 +52,7 @@ fn send(request: &Request) -> anyhow::Result<Response> {
 
 #[tauri::command]
 async fn setup_status() -> Result<SetupStatus, String> {
-    blocking(|| Ok(tunelock_setup::status(&Paths::from_env()?, EXTENSION))).await
+    blocking(|| Ok(focuslock_setup::status(&Paths::from_env()?, EXTENSION))).await
 }
 
 #[tauri::command]
@@ -65,10 +65,10 @@ async fn run_setup(on_progress: Channel<String>) -> Result<SetupStatus, String> 
             bail!("setup is unavailable during a locked session");
         }
         let paths = Paths::from_env()?;
-        tunelock_setup::run(&paths, EXTENSION, |step| {
+        focuslock_setup::run(&paths, EXTENSION, |step| {
             let _ = on_progress.send(step.to_owned());
         })?;
-        Ok(tunelock_setup::status(&paths, EXTENSION))
+        Ok(focuslock_setup::status(&paths, EXTENSION))
     })
     .await
 }
@@ -106,5 +106,5 @@ fn main() {
             open_spotify_download
         ])
         .run(tauri::generate_context!())
-        .expect("error while running the Tunelock app");
+        .expect("error while running the Focus Lock app");
 }

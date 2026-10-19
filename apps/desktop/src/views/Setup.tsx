@@ -59,16 +59,16 @@ export function SetupView({
   return (
     <Page
       title="Setup"
-      description="Tunelock works inside the Spotify desktop app through Spicetify, a tool that lets Spotify load extensions."
+      description="Focus Lock works inside the Spotify desktop app through Spicetify, a tool that lets Spotify load extensions."
     >
       {locked && (
         <InfoBar severity="info" icon="lock" title="Setup is paused during a locked session.">
-          Tunelock keeps Spotify set up on its own until it ends.
+          Focus Lock keeps Spotify set up on its own until it ends.
         </InfoBar>
       )}
       {finished && ready && (
         <InfoBar severity="success" title="All set.">
-          Spotify restarted with Tunelock. You can start a session.
+          Spotify restarted with Focus Lock. You can start a session.
         </InfoBar>
       )}
       {error && (
@@ -108,7 +108,7 @@ export function SetupView({
         >
           <StepBadge state={setup.spicetify ? "ready" : "todo"} />
         </Card>
-        <Card icon="lock" header="Tunelock in Spotify" description={extensionLabel}>
+        <Card icon="lock" header="Focus Lock in Spotify" description={extensionLabel}>
           <StepBadge state={setup.extension === "ready" ? "ready" : "todo"} />
         </Card>
       </Section>

@@ -1,22 +1,22 @@
 [package]
-name = "tunelock-cli"
-description = "Command-line client for the Tunelock service."
+name = "focuslock-cli"
+description = "Command-line client for the Focus Lock service."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 repository.workspace = true
 
 [[bin]]
-name = "tunelock"
+name = "focuslock"
 path = "src/main.rs"
 
 [dependencies]
 anyhow.workspace = true
 chrono.workspace = true
 clap.workspace = true
-tunelock-client.workspace = true
-tunelock-core.workspace = true
-tunelock-protocol.workspace = true
+focuslock-client.workspace = true
+focuslock-core.workspace = true
+focuslock-protocol.workspace = true
 
 [lints]
 workspace = true

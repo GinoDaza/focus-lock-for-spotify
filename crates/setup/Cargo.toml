@@ -1,6 +1,6 @@
 [package]
-name = "tunelock-setup"
-description = "First-run setup of the Spotify side of Tunelock: Spicetify and the extension."
+name = "focuslock-setup"
+description = "First-run setup of the Spotify side of Focus Lock: Spicetify and the extension."
 version.workspace = true
 edition.workspace = true
 license.workspace = true

@@ -8,40 +8,40 @@
 
 !macro NSIS_HOOK_PREINSTALL
   ; Updating: stop and remove the old service so its files can be replaced.
-  IfFileExists "$INSTDIR\tunelock-service.exe" 0 tunelock_preinstall_done
-    nsExec::ExecToLog '"$INSTDIR\tunelock-service.exe" uninstall'
+  IfFileExists "$INSTDIR\focuslock-service.exe" 0 focuslock_preinstall_done
+    nsExec::ExecToLog '"$INSTDIR\focuslock-service.exe" uninstall'
     Pop $0
-    StrCmp $0 "0" tunelock_preinstall_done
-      MessageBox MB_ICONSTOP "Tunelock can't be updated right now. If a locked session is running, try again after it ends." /SD IDOK
+    StrCmp $0 "0" focuslock_preinstall_done
+      MessageBox MB_ICONSTOP "Focus Lock can't be updated right now. If a locked session is running, try again after it ends." /SD IDOK
       Abort
-  tunelock_preinstall_done:
+  focuslock_preinstall_done:
 !macroend
 
 !macro NSIS_HOOK_POSTINSTALL
-  nsExec::ExecToLog '"$INSTDIR\tunelock-service.exe" install'
+  nsExec::ExecToLog '"$INSTDIR\focuslock-service.exe" install'
   Pop $0
-  StrCmp $0 "0" tunelock_postinstall_done
-    MessageBox MB_ICONEXCLAMATION "The Tunelock service couldn't be started (code $0). Run the installer again to repair it." /SD IDOK
-  tunelock_postinstall_done:
+  StrCmp $0 "0" focuslock_postinstall_done
+    MessageBox MB_ICONEXCLAMATION "The Focus Lock service couldn't be started (code $0). Run the installer again to repair it." /SD IDOK
+  focuslock_postinstall_done:
 !macroend
 
 !macro NSIS_HOOK_PREUNINSTALL
-  nsExec::ExecToLog '"$INSTDIR\tunelock-service.exe" uninstall'
+  nsExec::ExecToLog '"$INSTDIR\focuslock-service.exe" uninstall'
   Pop $0
-  StrCmp $0 "0" tunelock_preuninstall_done
-    MessageBox MB_ICONSTOP "Tunelock can't be uninstalled right now. If a locked session is running, try again after it ends." /SD IDOK
+  StrCmp $0 "0" focuslock_preuninstall_done
+    MessageBox MB_ICONSTOP "Focus Lock can't be uninstalled right now. If a locked session is running, try again after it ends." /SD IDOK
     Abort
-  tunelock_preuninstall_done:
+  focuslock_preuninstall_done:
 !macroend
 
 !macro NSIS_HOOK_POSTUNINSTALL
   ; "Delete the application data" also removes the service's data
-  ; (allowlist, presets, schedules, log) in C:\ProgramData\Tunelock.
+  ; (allowlist, presets, schedules, log) in C:\ProgramData\FocusLock.
   ; Reaching this point means no locked session was running.
   ${If} $DeleteAppDataCheckboxState = 1
   ${AndIf} $UpdateMode <> 1
     SetShellVarContext all
-    RMDir /r "$APPDATA\Tunelock"
+    RMDir /r "$APPDATA\FocusLock"
     SetShellVarContext current
   ${EndIf}
 !macroend

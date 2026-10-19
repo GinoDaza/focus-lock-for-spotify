@@ -1,8 +1,8 @@
 {
-  "name": "tunelock-extension",
+  "name": "focuslock-extension",
   "version": "0.1.0",
   "private": true,
-  "description": "Spicetify extension that restricts the Spotify client during Tunelock sessions.",
+  "description": "Spicetify extension that restricts the Spotify client during Focus Lock sessions.",
   "license": "GPL-3.0-only",
   "type": "module",
   "scripts": {

@@ -1222,6 +1222,97 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
+name = "focuslock-cli"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "chrono",
+ "clap",
+ "focuslock-client",
+ "focuslock-core",
+ "focuslock-protocol",
+]
+
+[[package]]
+name = "focuslock-client"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "focuslock-core",
+ "focuslock-protocol",
+ "interprocess",
+]
+
+[[package]]
+name = "focuslock-core"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+]
+
+[[package]]
+name = "focuslock-desktop"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "focuslock-client",
+ "focuslock-core",
+ "focuslock-protocol",
+ "focuslock-setup",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-single-instance",
+]
+
+[[package]]
+name = "focuslock-protocol"
+version = "0.1.0"
+dependencies = [
+ "focuslock-core",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "focuslock-service"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "chrono",
+ "clap",
+ "focuslock-core",
+ "focuslock-protocol",
+ "interprocess",
+ "serde",
+ "serde_json",
+ "sysinfo",
+ "tempfile",
+ "tokio",
+ "tower-http 0.7.1",
+ "tracing",
+ "tracing-subscriber",
+ "widestring",
+ "windows-service",
+ "windows-sys 0.61.2",
+]
+
+[[package]]
+name = "focuslock-setup"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "serde",
+ "sha2 0.11.1",
+ "tempfile",
+ "ureq",
+ "zip",
+]
+
+[[package]]
 name = "foldhash"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4443,97 +4534,6 @@ name = "try-lock"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
-
-[[package]]
-name = "tunelock-cli"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "chrono",
- "clap",
- "tunelock-client",
- "tunelock-core",
- "tunelock-protocol",
-]
-
-[[package]]
-name = "tunelock-client"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "interprocess",
- "tunelock-core",
- "tunelock-protocol",
-]
-
-[[package]]
-name = "tunelock-core"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "serde",
- "serde_json",
- "thiserror 2.0.21",
-]
-
-[[package]]
-name = "tunelock-desktop"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "tauri",
- "tauri-build",
- "tauri-plugin-single-instance",
- "tunelock-client",
- "tunelock-core",
- "tunelock-protocol",
- "tunelock-setup",
-]
-
-[[package]]
-name = "tunelock-protocol"
-version = "0.1.0"
-dependencies = [
- "serde",
- "serde_json",
- "tunelock-core",
-]
-
-[[package]]
-name = "tunelock-service"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum",
- "chrono",
- "clap",
- "interprocess",
- "serde",
- "serde_json",
- "sysinfo",
- "tempfile",
- "tokio",
- "tower-http 0.7.1",
- "tracing",
- "tracing-subscriber",
- "tunelock-core",
- "tunelock-protocol",
- "widestring",
- "windows-service",
- "windows-sys 0.61.2",
-]
-
-[[package]]
-name = "tunelock-setup"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "serde",
- "sha2 0.11.1",
- "tempfile",
- "ureq",
- "zip",
-]
 
 [[package]]
 name = "typed-path"

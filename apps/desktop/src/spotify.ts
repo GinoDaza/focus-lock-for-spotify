@@ -6,7 +6,7 @@ export interface PlaylistMeta {
   thumbnail: string | null;
 }
 
-const CACHE_KEY = "tunelock.playlists.v1";
+const CACHE_KEY = "focuslock.playlists.v1";
 const memory = new Map<string, Promise<PlaylistMeta | null>>();
 
 function readCache(): Record<string, PlaylistMeta> {

@@ -1,4 +1,4 @@
-//! `tunelock`: command-line client for the Tunelock service.
+//! `focuslock`: command-line client for the Focus Lock service.
 
 mod duration;
 
@@ -8,14 +8,14 @@ use std::time::Duration;
 use anyhow::{Context, bail};
 use chrono::{NaiveTime, Weekday};
 use clap::{Parser, Subcommand};
-use tunelock_client::Client;
-use tunelock_core::{Allowlist, LockMode, PlaylistId, Preset, Schedule, format_duration};
-use tunelock_protocol::{CONTROL_SOCKET, Request, Response, SessionInfo};
+use focuslock_client::Client;
+use focuslock_core::{Allowlist, LockMode, PlaylistId, Preset, Schedule, format_duration};
+use focuslock_protocol::{CONTROL_SOCKET, Request, Response, SessionInfo};
 
 use crate::duration::parse_duration;
 
 #[derive(Parser)]
-#[command(name = "tunelock", version, about = "Control Tunelock focus sessions")]
+#[command(name = "focuslock", version, about = "Control focus sessions")]
 struct Cli {
     /// Name of the service's control socket.
     #[arg(long, default_value = CONTROL_SOCKET, hide = true)]
@@ -28,7 +28,7 @@ struct Cli {
 enum Command {
     /// Show the current session.
     Status,
-    /// Start a session, e.g. `tunelock start 2h30m --locked`.
+    /// Start a session, e.g. `focuslock start 2h30m --locked`.
     Start {
         /// How long, e.g. 45m, 2h, 1d12h.
         #[arg(value_parser = parse_duration)]
@@ -100,7 +100,7 @@ enum PresetCommand {
 #[derive(Subcommand)]
 enum ScheduleCommand {
     List,
-    /// e.g. `tunelock schedule add Work --days mon,tue,wed,thu,fri --from 09:00 --to 18:00 --locked`
+    /// e.g. `focuslock schedule add Work --days mon,tue,wed,thu,fri --from 09:00 --to 18:00 --locked`
     Add {
         name: String,
         #[arg(long, value_delimiter = ',', required = true)]
@@ -173,7 +173,7 @@ fn run(client: &mut Client, command: Command) -> anyhow::Result<()> {
         }
         Command::Allowlist(AllowlistCommand::Show) => match client.allowlist()? {
             Some(list) => list.iter().for_each(|id| println!("{}", id.uri())),
-            None => println!("No playlists allowed yet. Use `tunelock allowlist set <LINK>...`."),
+            None => println!("No playlists allowed yet. Use `focuslock allowlist set <LINK>...`."),
         },
         Command::Allowlist(AllowlistCommand::Set { playlists }) => {
             let allowlist = parse_allowlist(&playlists)?;
@@ -304,7 +304,7 @@ fn parse_allowlist(links: &[String]) -> anyhow::Result<Allowlist> {
 
 fn saved_allowlist(client: &mut Client) -> anyhow::Result<Allowlist> {
     client.allowlist()?.context(
-        "no playlists allowed yet; pass --playlist or run `tunelock allowlist set <LINK>...`",
+        "no playlists allowed yet; pass --playlist or run `focuslock allowlist set <LINK>...`",
     )
 }
 

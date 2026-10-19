@@ -1,14 +1,14 @@
 use std::path::PathBuf;
 
 use clap::{Args, Parser, Subcommand};
-use tunelock_protocol::{CONTROL_SOCKET, EXTENSION_PORT};
-use tunelock_service::Options;
+use focuslock_protocol::{CONTROL_SOCKET, EXTENSION_PORT};
+use focuslock_service::Options;
 
 #[derive(Parser)]
 #[command(
-    name = "tunelock-service",
+    name = "focuslock-service",
     version,
-    about = "Tunelock background service"
+    about = "Focus Lock background service"
 )]
 struct Cli {
     #[command(subcommand)]
@@ -35,7 +35,7 @@ enum Command {
 #[derive(Args)]
 struct RunArgs {
     /// Where to keep the service's data.
-    #[arg(long, env = "TUNELOCK_DATA_DIR", default_value_os_t = default_data_dir())]
+    #[arg(long, env = "FOCUSLOCK_DATA_DIR", default_value_os_t = default_data_dir())]
     data_dir: PathBuf,
     /// Name of the control socket.
     #[arg(long, default_value = CONTROL_SOCKET)]
@@ -49,11 +49,11 @@ fn default_data_dir() -> PathBuf {
     if cfg!(windows) {
         std::env::var_os("ProgramData")
             .map_or_else(|| PathBuf::from(r"C:\ProgramData"), PathBuf::from)
-            .join("Tunelock")
+            .join("FocusLock")
     } else {
         std::env::var_os("HOME")
             .map_or_else(|| PathBuf::from("."), PathBuf::from)
-            .join(".local/state/tunelock")
+            .join(".local/state/focuslock")
     }
 }
 
@@ -73,7 +73,7 @@ fn main() -> anyhow::Result<()> {
                 port: args.port,
                 system: false,
             };
-            tokio::runtime::Runtime::new()?.block_on(tunelock_service::run_console(&options))
+            tokio::runtime::Runtime::new()?.block_on(focuslock_service::run_console(&options))
         }
         #[cfg(windows)]
         Command::Service => {
@@ -84,12 +84,12 @@ fn main() -> anyhow::Result<()> {
                 system: true,
             };
             log_to_file(&options.data_dir)?;
-            tunelock_service::windows::scm::dispatch(options)
+            focuslock_service::windows::scm::dispatch(options)
         }
         #[cfg(windows)]
-        Command::Install => tunelock_service::windows::scm::install(),
+        Command::Install => focuslock_service::windows::scm::install(),
         #[cfg(windows)]
-        Command::Uninstall => tunelock_service::windows::scm::uninstall(&default_data_dir()),
+        Command::Uninstall => focuslock_service::windows::scm::uninstall(&default_data_dir()),
     }
 }
 

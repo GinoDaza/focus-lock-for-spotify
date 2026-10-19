@@ -1,4 +1,4 @@
-//! First-run setup of the Spotify side of Tunelock, run by the desktop app
+//! First-run setup of the Spotify side of Focus Lock, run by the desktop app
 //! as the logged-on user (Spicetify refuses to run elevated):
 //!
 //! 1. Spotify from spotify.com must be installed (the Microsoft Store build
@@ -22,7 +22,7 @@ use serde::Serialize;
 pub use spicetify::{install_latest, select_asset, verify_digest};
 
 /// File name of the extension in Spicetify's folders and config.
-pub const EXTENSION_NAME: &str = "tunelock.js";
+pub const EXTENSION_NAME: &str = "focuslock.js";
 
 /// Package folder of the Microsoft Store build of Spotify.
 const STORE_PACKAGE: &str = "SpotifyAB.SpotifyMusic_zpdnekdrzrea0";
@@ -195,7 +195,7 @@ pub fn run(paths: &Paths, bundled: &[u8], progress: impl Fn(&str)) -> anyhow::Re
         install_latest(&paths.spicetify_dir())?;
     }
 
-    progress("Installing the Tunelock extension…");
+    progress("Installing the Focus Lock extension…");
     let target = paths.user_extension();
     if let Some(dir) = target.parent() {
         fs::create_dir_all(dir)?;
@@ -227,7 +227,7 @@ mod tests {
 
     use super::*;
 
-    const BUNDLED: &[u8] = b"// tunelock v2";
+    const BUNDLED: &[u8] = b"// focuslock v2";
 
     fn paths(dir: &Path) -> Paths {
         Paths {
@@ -243,11 +243,11 @@ mod tests {
 
     #[test]
     fn ini_values() {
-        let config = "[Setting]\nspotify_path = C:\\Spotify\n[AdditionalOptions]\nextensions = a.js|tunelock.js\n";
+        let config = "[Setting]\nspotify_path = C:\\Spotify\n[AdditionalOptions]\nextensions = a.js|focuslock.js\n";
         assert_eq!(ini_value(config, "spotify_path"), Some("C:\\Spotify"));
         assert!(config_enables_extension(config));
         assert!(!config_enables_extension(
-            "extensions = a.js|tunelock.js.bak"
+            "extensions = a.js|focuslock.js.bak"
         ));
         assert!(!config_enables_extension("extensions ="));
     }
@@ -284,7 +284,7 @@ mod tests {
         touch(&p.spicetify_exe(), b"");
         let applied = spotify.join("Apps/xpui/extensions").join(EXTENSION_NAME);
 
-        touch(&applied, b"// tunelock v1");
+        touch(&applied, b"// focuslock v1");
         assert_eq!(status(&p, BUNDLED).extension, ExtensionState::Outdated);
 
         touch(&applied, BUNDLED);

@@ -9,7 +9,7 @@ target=x86_64-pc-windows-msvc
 
 # The app embeds the extension, and the installer ships the service and CLI.
 (cd extension && pnpm install --frozen-lockfile && pnpm build)
-cargo xwin build --release --target "$target" -p tunelock-service -p tunelock-cli
+cargo xwin build --release --target "$target" -p focuslock-service -p focuslock-cli
 
 cd apps/desktop
 pnpm install --frozen-lockfile

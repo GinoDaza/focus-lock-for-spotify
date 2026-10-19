@@ -50,7 +50,7 @@ export function App() {
       <nav className="nav" aria-label="Main">
         <div className="nav-title">
           <img src="/icon.png" alt="" />
-          <span>Tunelock</span>
+          <span>Focus Lock</span>
         </div>
         <ul>
           {NAV.map(([id, label, icon]) => (
@@ -79,7 +79,7 @@ export function App() {
         {live.error && (
           <InfoBar
             severity="critical"
-            title="Can't reach the Tunelock service."
+            title="Can't reach the Focus Lock service."
             action={<button onClick={() => void live.refresh()}>Retry</button>}
           >
             Make sure it's installed and running. <span className="tertiary-text">({live.error})</span>

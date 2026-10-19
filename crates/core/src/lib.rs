@@ -1,4 +1,4 @@
-//! Domain model of Tunelock.
+//! Domain model of Focus Lock.
 //!
 //! This crate is pure: no I/O, no system clock. The service feeds it elapsed
 //! time and the current local time, which keeps every rule testable.

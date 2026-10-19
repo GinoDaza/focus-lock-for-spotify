@@ -5,11 +5,11 @@
 
 ## Question
 
-Can a Spicetify extension running inside the Spotify desktop client make HTTP requests to the Tunelock service on `127.0.0.1`? The plan's fallback was to embed the state in the extension and re-apply Spicetify on every change.
+Can a Spicetify extension running inside the Spotify desktop client make HTTP requests to the Focus Lock service on `127.0.0.1`? The plan's fallback was to embed the state in the extension and re-apply Spicetify on every change.
 
 ## Spike
 
-`spikes/tunelock-spike.js` was loaded into Spotify 1.3.5.3058 on Windows with Spicetify. The service ran in WSL2 (mirrored networking) on port 39817.
+`spikes/focuslock-spike.js` was loaded into Spotify 1.3.5.3058 on Windows with Spicetify. The service ran in WSL2 (mirrored networking) on port 39817.
 
 ## Result
 

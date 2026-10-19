@@ -1,6 +1,6 @@
 # ADR 0008: Naming
 
-- Status: accepted
+- Status: superseded by ADR 0011
 - Date: 2026-10-16
 
 ## Context

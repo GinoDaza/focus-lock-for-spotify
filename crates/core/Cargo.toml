@@ -1,6 +1,6 @@
 [package]
-name = "tunelock-core"
-description = "Domain model of Tunelock: focus sessions, allowlists, presets and schedules."
+name = "focuslock-core"
+description = "Domain model of Focus Lock: focus sessions, allowlists, presets and schedules."
 version.workspace = true
 edition.workspace = true
 license.workspace = true

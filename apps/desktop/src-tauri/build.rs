@@ -1,7 +1,7 @@
 use std::path::Path;
 
 /// The Spicetify extension is embedded in the app (see `setup.rs`).
-const EXTENSION: &str = "../../../extension/dist/tunelock.js";
+const EXTENSION: &str = "../../../extension/dist/focuslock.js";
 
 fn main() {
     println!("cargo:rerun-if-changed={EXTENSION}");

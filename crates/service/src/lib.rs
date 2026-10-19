@@ -1,4 +1,4 @@
-//! The Tunelock service: owns the session state, advances time, serves the
+//! The Focus Lock service: owns the session state, advances time, serves the
 //! control channel and the extension channel, and runs the enforcers.
 
 pub mod app;
@@ -59,7 +59,7 @@ impl Service {
             data_dir = %options.data_dir.display(),
             socket = options.socket,
             extension = %extension.local_addr()?,
-            "tunelock service running"
+            "focuslock service running"
         );
         Ok(Self {
             app,

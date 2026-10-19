@@ -12,7 +12,7 @@ use sha2::{Digest, Sha256};
 use crate::Paths;
 
 const LATEST_RELEASE: &str = "https://api.github.com/repos/spicetify/cli/releases/latest";
-const USER_AGENT: &str = concat!("tunelock/", env!("CARGO_PKG_VERSION"));
+const USER_AGENT: &str = concat!("focuslock/", env!("CARGO_PKG_VERSION"));
 /// The Windows zips are a few MB; anything far bigger is not Spicetify.
 const MAX_DOWNLOAD: u64 = 64 * 1024 * 1024;
 
@@ -257,7 +257,7 @@ mod tests {
         );
     }
 
-    /// Hits GitHub: `cargo test -p tunelock-setup -- --ignored`.
+    /// Hits GitHub: `cargo test -p focuslock-setup -- --ignored`.
     #[test]
     #[ignore = "needs network"]
     fn downloads_the_latest_release() {

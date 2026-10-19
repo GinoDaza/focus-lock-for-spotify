@@ -1,4 +1,4 @@
-//! Wire protocol between `tunelock-service` and its clients.
+//! Wire protocol between `focuslock-service` and its clients.
 //!
 //! Two channels exist:
 //! - **Control** (local socket [`CONTROL_SOCKET`]): the desktop app and the CLI
@@ -10,18 +10,18 @@
 
 use std::time::Duration;
 
-use serde::de::DeserializeOwned;
-use serde::{Deserialize, Serialize};
-use tunelock_core::{
+use focuslock_core::{
     Allowlist, LockMode, LockState, PlaylistId, Preset, Schedule, Session, serde_secs,
 };
+use serde::de::DeserializeOwned;
+use serde::{Deserialize, Serialize};
 
 /// Bumped on any breaking change to the types in this crate.
 pub const PROTOCOL_VERSION: u32 = 1;
 
 /// Namespaced local-socket name of the control channel: the named pipe
-/// `\\.\pipe\tunelock` on Windows, an abstract socket on Linux.
-pub const CONTROL_SOCKET: &str = "tunelock";
+/// `\\.\pipe\focuslock` on Windows, an abstract socket on Linux.
+pub const CONTROL_SOCKET: &str = "focuslock";
 
 /// Loopback port of the extension channel.
 pub const EXTENSION_PORT: u16 = 39_817;
@@ -128,9 +128,9 @@ pub enum ErrorCode {
     Internal,
 }
 
-impl From<&tunelock_core::Error> for ErrorBody {
-    fn from(error: &tunelock_core::Error) -> Self {
-        use tunelock_core::Error as E;
+impl From<&focuslock_core::Error> for ErrorBody {
+    fn from(error: &focuslock_core::Error) -> Self {
+        use focuslock_core::Error as E;
         let code = match error {
             E::AlreadyActive => ErrorCode::AlreadyActive,
             E::NotActive => ErrorCode::NotActive,
@@ -150,8 +150,8 @@ impl From<&tunelock_core::Error> for ErrorBody {
     }
 }
 
-impl From<tunelock_core::Error> for Response {
-    fn from(error: tunelock_core::Error) -> Self {
+impl From<focuslock_core::Error> for Response {
+    fn from(error: focuslock_core::Error) -> Self {
         Self::Error(ErrorBody::from(&error))
     }
 }
@@ -265,7 +265,7 @@ mod tests {
 
     #[test]
     fn errors_map_to_codes() {
-        let response = Response::from(tunelock_core::Error::Locked {
+        let response = Response::from(focuslock_core::Error::Locked {
             remaining: Duration::from_hours(1),
         });
         assert_eq!(

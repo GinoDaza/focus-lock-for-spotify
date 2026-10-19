@@ -1,4 +1,4 @@
-// Minimal typings for the parts of the Spicetify API that Tunelock uses.
+// Minimal typings for the parts of the Spicetify API that Focus Lock uses.
 // Spotify-internal APIs change between client versions; keep this small and
 // access them only through src/compat.ts.
 

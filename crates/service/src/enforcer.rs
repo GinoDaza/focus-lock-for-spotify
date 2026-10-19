@@ -144,7 +144,7 @@ impl<P: SpotifyProcesses> Enforcer for SpotifyEnforcer<P> {
             let closed = self.processes.terminate();
             tracing::warn!(
                 closed,
-                "closed Spotify: the Tunelock extension did not report in"
+                "closed Spotify: the Focus Lock extension did not report in"
             );
         }
     }

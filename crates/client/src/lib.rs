@@ -1,15 +1,15 @@
-//! Blocking client for the control channel of `tunelock-service`, shared by
+//! Blocking client for the control channel of `focuslock-service`, shared by
 //! the CLI and the desktop app.
 
 use std::io::{BufRead, BufReader, Read, Write};
 
 use anyhow::{Context, bail};
-use interprocess::local_socket::prelude::*;
-use interprocess::local_socket::{GenericNamespaced, Stream};
-use tunelock_core::Allowlist;
-use tunelock_protocol::{
+use focuslock_core::Allowlist;
+use focuslock_protocol::{
     MAX_LINE_LEN, PROTOCOL_VERSION, Request, Response, Status, decode_line, encode_line,
 };
+use interprocess::local_socket::prelude::*;
+use interprocess::local_socket::{GenericNamespaced, Stream};
 
 /// A blocking connection to the service's control socket.
 pub struct Client {
@@ -18,14 +18,14 @@ pub struct Client {
 
 impl Client {
     /// Connects to the control socket `name`, usually
-    /// [`tunelock_protocol::CONTROL_SOCKET`].
+    /// [`focuslock_protocol::CONTROL_SOCKET`].
     ///
     /// # Errors
     /// If the service is not running or the name is invalid.
     pub fn connect(name: &str) -> anyhow::Result<Self> {
         let name = name.to_ns_name::<GenericNamespaced>()?;
         let stream = Stream::connect(name)
-            .context("could not reach the Tunelock service; is it running?")?;
+            .context("could not reach the Focus Lock service; is it running?")?;
         Ok(Self {
             stream: BufReader::new(stream),
         })

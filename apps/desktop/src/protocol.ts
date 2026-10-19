@@ -48,7 +48,7 @@ export type Response =
   | { type: "schedules"; schedules: unknown[] }
   | { type: "done" };
 
-// Setup of the Spotify side (`tunelock-setup`), not part of the service protocol.
+// Setup of the Spotify side (`focuslock-setup`), not part of the service protocol.
 
 export interface SetupStatus {
   spotify: "missing" | "store" | "ready";

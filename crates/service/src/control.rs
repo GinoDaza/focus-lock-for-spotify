@@ -3,12 +3,12 @@
 use std::io;
 
 use chrono::Local;
+use focuslock_protocol::{
+    ErrorBody, ErrorCode, MAX_LINE_LEN, Request, Response, decode_line, encode_line,
+};
 use interprocess::local_socket::tokio::{Listener, Stream, prelude::*};
 use interprocess::local_socket::{GenericNamespaced, ListenerOptions};
 use tokio::io::{AsyncBufReadExt, AsyncReadExt, AsyncWriteExt, BufReader};
-use tunelock_protocol::{
-    ErrorBody, ErrorCode, MAX_LINE_LEN, Request, Response, decode_line, encode_line,
-};
 
 use crate::app::App;
 

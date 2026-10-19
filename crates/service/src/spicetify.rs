@@ -1,4 +1,4 @@
-//! Keeps the Spicetify setup that carries the Tunelock extension in place.
+//! Keeps the Spicetify setup that carries the Focus Lock extension in place.
 //!
 //! - During a session, if Spotify was updated (which removes Spicetify),
 //!   Spicetify is applied again in the logged-on user's session.
@@ -15,7 +15,7 @@ use std::time::{Duration, Instant};
 use crate::enforcer::{Context, Enforcer};
 
 /// Name of the extension file inside Spotify's patched UI.
-pub const EXTENSION_FILE: &str = "tunelock.js";
+pub const EXTENSION_FILE: &str = "focuslock.js";
 
 /// Minimum time between two attempts to re-apply Spicetify.
 pub const REAPPLY_BACKOFF: Duration = Duration::from_mins(5);
@@ -94,7 +94,7 @@ fn config_value<'a>(config: &'a str, key: &str) -> Option<&'a str> {
 pub enum PatchState {
     /// Spotify is not installed where expected.
     NotInstalled,
-    /// Spicetify is applied with the Tunelock extension.
+    /// Spicetify is applied with the Focus Lock extension.
     Patched,
     /// Stock Spotify UI, e.g. right after an update.
     Unpatched,

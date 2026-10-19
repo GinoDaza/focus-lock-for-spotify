@@ -27,10 +27,9 @@ use crate::engine::Engine;
 use crate::store::{JsonFileStore, MemoryStore, Store};
 use crate::{Options, Service};
 
-pub const SERVICE_NAME: &str = "Tunelock";
-const DISPLAY_NAME: &str = "Tunelock";
-const DESCRIPTION: &str =
-    "Keeps Tunelock focus sessions running: limits Spotify to the allowed playlists.";
+pub const SERVICE_NAME: &str = "FocusLock";
+const DISPLAY_NAME: &str = "Focus Lock";
+const DESCRIPTION: &str = "Keeps focus sessions running: limits Spotify to the allowed playlists.";
 const SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;
 
 /// How often the accepted controls are brought in line with the session.

@@ -11,7 +11,7 @@ The extension reports to the service with `POST /v1/heartbeat` over loopback HTT
 
 Keep the heartbeat unauthenticated. It carries no data and cannot change a session: its only effect is the timestamp of the last heartbeat. A check or token would be readable or reproducible by any process running with the user's permissions, so it would add complexity and a dependency on Spotify internals without a real guarantee.
 
-Tunelock adds friction against casual removal. It doesn't try to be impossible to remove for the owner of the machine. The README says so.
+Focus Lock adds friction against casual removal. It doesn't try to be impossible to remove for the owner of the machine. The README says so.
 
 ## Consequences
 

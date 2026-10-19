@@ -1,6 +1,6 @@
 # Research: restricted focus mode for Spotify (Cold Turkey style)
 
-> Prior-art research done before starting Tunelock (October 2026). It was produced with an AI research agent; links were checked to exist but details were not all verified.
+> Prior-art research done before starting Focus Lock (October 2026). It was produced with an AI research agent; links were checked to exist but details were not all verified.
 
 ## 1. Verdict
 

@@ -1,4 +1,4 @@
-# Plan: Tunelock, a focus lock for the Spotify desktop app (Windows)
+# Plan: Focus Lock, a focus lock for the Spotify desktop app (Windows)
 
 > **Status (2026-10-16):** M0, M1 and M2 are done; M3 is in progress (ADR 0004). Two things changed during implementation:
 > - Persistence is a JSON file instead of SQLite (ADR 0002).
@@ -10,7 +10,7 @@
 
 Distracting music (phonk, etc.) breaks concentration while studying or coding. Research (see [`research.md`](research.md)) found **no** tool that reduces the Spotify desktop app to a few playlists with a Cold Turkey-style time lock. Existing blockers block whole apps or websites; none allow "keep the app, but only this content".
 
-Goal: an **open-source (GPL-3.0), free project called Tunelock** with a solid architecture and light maintenance. Scope for v0.1 is **Windows and the Spotify desktop app**. The browser and the web player are out of scope.
+Goal: an **open-source (GPL-3.0), free project called Focus Lock** with a solid architecture and light maintenance. Scope for v0.1 is **Windows and the Spotify desktop app**. The browser and the web player are out of scope.
 
 ## Stack decisions (the standard choice for each piece)
 
@@ -18,7 +18,7 @@ Goal: an **open-source (GPL-3.0), free project called Tunelock** with a solid ar
 |---|---|---|
 | Core + service | **Rust**, `windows-service` crate, `tokio` | Small native binary, no runtime. `windows-service` is the standard crate for Win32 services. |
 | Service ↔ UI IPC | Named pipe (`interprocess`) with an ACL + typed JSON protocol (`serde`) | The standard Windows mechanism between a service and a user app. The ACL controls who can send commands. |
-| Persistence | ~~SQLite~~ JSON file in `%ProgramData%\Tunelock`, ACL for SYSTEM/Admin only | Sessions, presets, schedules. Atomic writes. See ADR 0002. |
+| Persistence | ~~SQLite~~ JSON file in `%ProgramData%\FocusLock`, ACL for SYSTEM/Admin only | Sessions, presets, schedules. Atomic writes. See ADR 0002. |
 | Desktop UI | **Tauri v2** + React + TypeScript + Vite (no tray in v0.1, ADR 0006) | Today's standard for Rust desktop apps. Reuses the protocol types. |
 | Spotify extension | TypeScript bundled with **esbuild** into a single Spicetify `.js` | Spicetify extensions are a single JS file (official docs). |
 | Installer | Tauri's NSIS bundler (`perMachine`) + `installer_hooks` (.nsh) | NSIS hooks install and remove the service. |
@@ -27,15 +27,15 @@ Goal: an **open-source (GPL-3.0), free project called Tunelock** with a solid ar
 ## Architecture
 
 ```
-tunelock/
+focuslock/
 ├─ Cargo.toml                 (workspace)
 ├─ crates/
 │  ├─ core/       pure domain: Lock, Preset, Schedule, Allowlist, state machine
 │  ├─ protocol/   IPC message types (serde), versioned
-│  ├─ service/    `tunelock-service` binary: Windows service, IPC, persistence, enforcers
-│  └─ cli/        `tunelock` CLI for development and diagnostics
+│  ├─ service/    `focuslock-service` binary: Windows service, IPC, persistence, enforcers
+│  └─ cli/        `focuslock` CLI for development and diagnostics
 ├─ apps/desktop/  Tauri v2 (src-tauri/ + src/ React)
-├─ extension/     Spicetify: src/*.ts → dist/tunelock.js (esbuild)
+├─ extension/     Spicetify: src/*.ts → dist/focuslock.js (esbuild)
 ├─ installer/     .nsh hooks
 ├─ docs/          original idea, research, ADRs
 └─ .github/workflows/
@@ -54,7 +54,7 @@ tunelock/
 - **Read-only local endpoint** (HTTP on `127.0.0.1`): the extension reads the session state and the allowlist and sends a heartbeat. Because it is read-only, exposing it cannot unlock anything.
 - **Enforcers** behind a trait (`on_lock_start`, `on_tick`, `on_lock_end`). Supporting other apps later means adding an enforcer.
   - `SpotifyEnforcer`:
-    1. When a session starts, checks that Spicetify is applied with the Tunelock extension, and re-applies it in the user's context if not.
+    1. When a session starts, checks that Spicetify is applied with the Focus Lock extension, and re-applies it in the user's context if not.
     2. **Fail-closed:** if `Spotify.exe` runs during a session and the extension sends no heartbeat within N seconds, it closes Spotify. That matches the user's choice: "I'd rather hear nothing."
     3. Protects the extension's files with ACLs for the duration of the session and restores permissions afterwards.
   - Detects Spotify updates (which remove Spicetify) and re-applies it.
@@ -84,7 +84,7 @@ tunelock/
 ## Milestones
 
 - **M0, repo and spikes:** `git init`, `.gitignore`, GPL-3.0 `LICENSE`, `README.md`, `.editorconfig`, docs moved to `docs/`, ADR for the stack, spikes for risks 1 and 2.
-- **M1, core + service + CLI:** state machine, persistence, IPC, and `tunelock start 2h --locked` working end to end.
+- **M1, core + service + CLI:** state machine, persistence, IPC, and `focuslock start 2h --locked` working end to end.
 - **M2, extension:** guards, cosmetic CSS, connection to the service.
 - **M3, Windows integration:** real Windows service, pipe ACL, protected data directory, resume-from-sleep handling, `SpotifyEnforcer` (re-apply Spicetify, fail-closed watchdog, ACLs, update detection).
 - **M4, Tauri UI:** start a session, presets, allowlist. The tray icon was dropped for v0.1 (ADR 0006).

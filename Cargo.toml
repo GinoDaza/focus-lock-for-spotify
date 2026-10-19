@@ -1,14 +1,14 @@
 [workspace]
 resolver = "3"
 members = ["crates/*", "apps/desktop/src-tauri"]
-# The desktop app needs a WebView toolchain; build it explicitly with `-p tunelock-desktop`.
+# The desktop app needs a WebView toolchain; build it explicitly with `-p focuslock-desktop`.
 default-members = ["crates/*"]
 
 [workspace.package]
 version = "0.1.0"
 edition = "2024"
 license = "GPL-3.0-only"
-repository = "https://github.com/OWNER/tunelock"
+repository = "https://github.com/OWNER/focus-lock-for-spotify"
 
 [workspace.dependencies]
 anyhow = "1.0.104"
@@ -24,10 +24,10 @@ tokio = { version = "1.53.3", features = ["rt-multi-thread", "macros", "net", "t
 tower-http = { version = "0.7.1", features = ["cors"] }
 tracing = "0.1"
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
-tunelock-client = { path = "crates/client" }
-tunelock-core = { path = "crates/core" }
-tunelock-protocol = { path = "crates/protocol" }
-tunelock-setup = { path = "crates/setup" }
+focuslock-client = { path = "crates/client" }
+focuslock-core = { path = "crates/core" }
+focuslock-protocol = { path = "crates/protocol" }
+focuslock-setup = { path = "crates/setup" }
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

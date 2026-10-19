@@ -1,6 +1,6 @@
 # Spotify Focus Lock (original idea)
 
-> This is the note that started Tunelock, kept for context. The current design is in [`plan.md`](plan.md).
+> This is the note that started Focus Lock, kept for context. The current design is in [`plan.md`](plan.md).
 
 ## Idea
 

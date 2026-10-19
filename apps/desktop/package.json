@@ -1,8 +1,8 @@
 {
-  "name": "tunelock-desktop",
+  "name": "focuslock-desktop",
   "version": "0.1.0",
   "private": true,
-  "description": "Desktop app for Tunelock.",
+  "description": "Desktop app for Focus Lock.",
   "license": "GPL-3.0-only",
   "type": "module",
   "scripts": {

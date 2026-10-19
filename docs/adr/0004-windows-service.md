@@ -5,13 +5,13 @@
 
 ## Context
 
-Milestone M3 turns `tunelock-service` into a real Windows service. A locked session must survive the user closing apps, rebooting and sleeping, and Spotify must not be usable without the extension during a session.
+Milestone M3 turns `focuslock-service` into a real Windows service. A locked session must survive the user closing apps, rebooting and sleeping, and Spotify must not be usable without the extension during a session.
 
 ## Decision
 
 ### Service
 
-- `tunelock-service install` registers the running executable as the `Tunelock` service: `LocalSystem`, automatic start, restart on every failure (the last recovery action repeats), and recovery also on non-crash exits. `service` is the hidden entry point the Service Control Manager uses; `run` stays the console mode for development.
+- `focuslock-service install` registers the running executable as the `Focus Lock` service: `LocalSystem`, automatic start, restart on every failure (the last recovery action repeats), and recovery also on non-crash exits. `service` is the hidden entry point the Service Control Manager uses; `run` stays the console mode for development.
 - **Stopping is refused during a locked session.** The service reports the controls it accepts every second, and `STOP` is only included when no locked session runs. The control handler re-checks, in case a session became locked between two updates. `SHUTDOWN` is always accepted; the state is saved on every tick and change, so there is nothing to flush.
 - **Uninstalling is refused during a locked session.** `uninstall` reads the saved state, credits the time since its checkpoint (without writing anything) and refuses if the session is still locked.
 - **Sleep:** on `PBT_APMRESUMEAUTOMATIC` or `PBT_APMRESUMESUSPEND`, the service credits the time asleep from the wall clock (`Engine::resume`) and resets the ticker's monotonic baseline, as ADR 0002 planned.
@@ -19,8 +19,8 @@ Milestone M3 turns `tunelock-service` into a real Windows service. A locked sess
 
 ### Access control
 
-- **Data directory** (`%ProgramData%\Tunelock`): owned by Administrators, protected DACL with full control for SYSTEM and Administrators only, inherited by the files inside.
-- **Control pipe** (`\\.\pipe\tunelock`): SYSTEM and Administrators get full access, interactive users get read and write. Remote clients are rejected. Authorization stays in the engine: every request is checked against the lock rules, whoever sends it.
+- **Data directory** (`%ProgramData%\FocusLock`): owned by Administrators, protected DACL with full control for SYSTEM and Administrators only, inherited by the files inside.
+- **Control pipe** (`\\.\pipe\focuslock`): SYSTEM and Administrators get full access, interactive users get read and write. Remote clients are rejected. Authorization stays in the engine: every request is checked against the lock rules, whoever sends it.
 - Win32 calls live in one module, `crates/service/src/windows/acl.rs`. The service crate denies `unsafe` instead of forbidding it so that module can opt in; every other crate still forbids it.
 
 ### Fail-closed watchdog (`SpotifyEnforcer`)

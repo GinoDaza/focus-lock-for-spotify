@@ -1,6 +1,6 @@
 [package]
-name = "tunelock-client"
-description = "Blocking client for the Tunelock service's control channel."
+name = "focuslock-client"
+description = "Blocking client for the Focus Lock service's control channel."
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -9,8 +9,8 @@ repository.workspace = true
 [dependencies]
 anyhow.workspace = true
 interprocess.workspace = true
-tunelock-core.workspace = true
-tunelock-protocol.workspace = true
+focuslock-core.workspace = true
+focuslock-protocol.workspace = true
 
 [lints]
 workspace = true

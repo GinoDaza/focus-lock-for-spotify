@@ -9,8 +9,8 @@
 use std::time::Duration;
 
 use chrono::{DateTime, NaiveDateTime, Utc};
-use tunelock_core::{Error as CoreError, LockMode, MAX_DURATION, Session, Transition};
-use tunelock_protocol::{
+use focuslock_core::{Error as CoreError, LockMode, MAX_DURATION, Session, Transition};
+use focuslock_protocol::{
     ErrorBody, ErrorCode, ExtensionState, PROTOCOL_VERSION, Request, Response, SessionInfo, Status,
 };
 
@@ -285,7 +285,7 @@ fn ensure_not_locked(data: &Data) -> Result<(), ErrorBody> {
 #[cfg(test)]
 mod tests {
     use chrono::{NaiveDate, NaiveTime, TimeDelta, Weekday};
-    use tunelock_core::{Allowlist, PlaylistId, Preset, Schedule};
+    use focuslock_core::{Allowlist, PlaylistId, Preset, Schedule};
 
     use super::*;
     use crate::store::MemoryStore;

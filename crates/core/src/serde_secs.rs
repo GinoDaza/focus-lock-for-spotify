@@ -1,6 +1,6 @@
-//! Serializes a [`Duration`] as whole seconds, the format every Tunelock
+//! Serializes a [`Duration`] as whole seconds, the format every Focus Lock
 //! JSON consumer (UI, extension, database) expects. Use with
-//! `#[serde(with = "tunelock_core::serde_secs")]`.
+//! `#[serde(with = "focuslock_core::serde_secs")]`.
 
 use std::time::Duration;
 

@@ -5,7 +5,7 @@
 
 ## Context
 
-The Tunelock extension only runs inside Spotify while Spicetify is applied. Spotify updates replace the patched UI with a stock one, and every piece of the setup lives in folders the user owns. The fail-closed watchdog (ADR 0004) already closes a Spotify client that runs without the extension. This ADR covers the other half: putting the setup back and keeping it unchanged during a locked session.
+The Focus Lock extension only runs inside Spotify while Spicetify is applied. Spotify updates replace the patched UI with a stock one, and every piece of the setup lives in folders the user owns. The fail-closed watchdog (ADR 0004) already closes a Spotify client that runs without the extension. This ADR covers the other half: putting the setup back and keeping it unchanged during a locked session.
 
 Spotify and Spicetify are installed per user, but the service runs as `LocalSystem`. The service acts on the user logged on at the console (`WTSGetActiveConsoleSessionId` + `WTSQueryUserToken`) and resolves their folders with `SHGetKnownFolderPath` and that user's token.
 
@@ -15,7 +15,7 @@ Spotify and Spicetify are installed per user, but the service runs as `LocalSyst
 
 ### Re-applying after updates
 
-During any session, if `%APPDATA%\Spotify\Apps` holds a stock UI (`xpui.spa` present, or no `xpui\extensions\tunelock.js`), the service runs `spicetify -q -n backup apply` as the logged-on user (`CreateProcessAsUserW` with their token and environment block, no window, 2 minute timeout). It does not restart Spotify; a client still running unpatched is closed by the watchdog and the next launch loads the extension. Attempts are at least 5 minutes apart. The Spotify path follows `spotify_path` in Spicetify's `config-xpui.ini` when set.
+During any session, if `%APPDATA%\Spotify\Apps` holds a stock UI (`xpui.spa` present, or no `xpui\extensions\focuslock.js`), the service runs `spicetify -q -n backup apply` as the logged-on user (`CreateProcessAsUserW` with their token and environment block, no window, 2 minute timeout). It does not restart Spotify; a client still running unpatched is closed by the watchdog and the next launch loads the extension. Attempts are at least 5 minutes apart. The Spotify path follows `spotify_path` in Spicetify's `config-xpui.ini` when set.
 
 ### Protecting the setup during locked sessions
 

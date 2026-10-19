@@ -108,7 +108,7 @@ pub enum Transition {
     Expired,
 }
 
-/// The single source of truth for whether Tunelock is restricting anything.
+/// The single source of truth for whether Focus Lock is restricting anything.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(tag = "state", rename_all = "snake_case")]
 pub enum LockState {

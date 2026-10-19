@@ -1,4 +1,4 @@
-// Tunelock Spicetify extension: while a session is active, Spotify can only
+// Focus Lock Spicetify extension: while a session is active, Spotify can only
 // show and play the allowed playlists. It never changes a session; it only
 // reads the state from the local service.
 
@@ -21,9 +21,9 @@ import {
 const SERVICE = "http://127.0.0.1:39817";
 const POLL_MS = 2_000;
 const HEARTBEAT_MS = 5_000;
-const CACHE_KEY = "tunelock:enforcement";
-const STYLE_ID = "tunelock-style";
-const BADGE_ID = "tunelock-badge";
+const CACHE_KEY = "focuslock:enforcement";
+const STYLE_ID = "focuslock-style";
+const BADGE_ID = "focuslock-badge";
 
 let current: Enforcement | null = null;
 let stopListening: (() => void) | null = null;
@@ -66,7 +66,7 @@ function enforcePlayback(): void {
   if (!current || !isPlaying()) return;
   if (!isAllowedContext(playbackContextUri(), current.allowedUris)) {
     Spicetify.Player.pause();
-    Spicetify.showNotification("Tunelock: only your focus playlists can play right now.");
+    Spicetify.showNotification("Focus Lock: only your focus playlists can play right now.");
   }
 }
 
@@ -97,7 +97,7 @@ function render(enforcement: Enforcement): void {
     font: "600 12px/1.4 sans-serif",
     pointerEvents: "none",
   });
-  badge.textContent = `🔒 Tunelock · ${formatRemaining(enforcement.endsAt - Date.now())}`;
+  badge.textContent = `🔒 Focus Lock · ${formatRemaining(enforcement.endsAt - Date.now())}`;
 }
 
 function apply(next: Enforcement | null): void {
