@@ -69,4 +69,10 @@ describe("sessionCss", () => {
     expect(css).toContain(`:not(:has([id="listrow-title-spotify:playlist:${FOCUS}"]))`);
     expect(css.trim().endsWith("{ display: none !important; }")).toBe(true);
   });
+
+  it("never hides the sidebar or the main view with the search box", () => {
+    const css = sessionCss([FOCUS]);
+    expect(css).toContain(":not(:has(#Desktop_LeftSidebar_Id))");
+    expect(css).toContain(":not(:has(.main-view-container))");
+  });
 });

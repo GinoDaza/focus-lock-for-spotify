@@ -15,12 +15,17 @@ export const playlistPath = (id: string): string => `/playlist/${id}`;
  * Spicetify maps the nav classes to stable `main-globalNav-*` names. The
  * first selector hides every ancestor of the search box that does not also
  * hold the history buttons or the right-hand controls, which is the whole
- * home + search + browse section.
+ * home + search + browse section. Spicetify can lag behind a Spotify update
+ * and lose those class names (2.45.3 on 1.3.6), so the climb also stops below
+ * anything holding the sidebar or the main view; otherwise it would hide the
+ * whole window.
  */
 export const HIDDEN_SELECTORS = [
   ":is(div, form):has([data-top-bar-search])" +
     ":not(:has(.main-globalNav-historyButtonsWrapper))" +
-    ":not(:has(.main-globalNav-contentRight))",
+    ":not(:has(.main-globalNav-contentRight))" +
+    ":not(:has(#Desktop_LeftSidebar_Id))" +
+    ":not(:has(.main-view-container))",
   "[data-top-bar-search]",
   ".main-globalNav-navLink",
   // Notifications (what's new) and friend activity.
