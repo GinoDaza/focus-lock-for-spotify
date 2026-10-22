@@ -109,7 +109,7 @@ fn enforcers(system: bool) -> Vec<Box<dyn enforcer::Enforcer>> {
     #[cfg(windows)]
     if system {
         enforcers.push(Box::new(spicetify::SpicetifyEnforcer::new(
-            windows::desktop::WindowsDesktop,
+            windows::desktop::WindowsDesktop::default(),
         )));
     }
     #[cfg(not(windows))]

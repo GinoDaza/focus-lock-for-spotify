@@ -33,6 +33,6 @@ The DACL edits work on SDDL strings in the pure `sddl` module. Only reading and 
 
 ## Consequences
 
-- Spotify cannot update itself during a locked session. It updates after the session ends, and the service re-applies Spicetify at the next session.
+- While Spotify's own updater is running (`spotify_installer*` from `%LOCALAPPDATA%\Spotify\Update`), the service lifts the protection, since the updater runs as the user and must replace the UI folder. When it exits, the next check re-applies Spicetify and restores the protection. Without this, a locked session made updates fail with the installer's "files are in use" error.
 - Flexible sessions do not protect files: they can be cancelled anyway.
 - Only the console user is handled. Fast user switching and remote sessions are out of scope for v0.1.

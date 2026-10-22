@@ -105,6 +105,8 @@ pub trait Desktop: Send {
     /// The logged-on user's paths, or `None` when nobody is logged on.
     fn user_paths(&mut self) -> Option<UserPaths>;
     fn patch_state(&self, paths: &UserPaths) -> PatchState;
+    /// Whether Spotify's own updater is running right now.
+    fn updating(&mut self, paths: &UserPaths) -> bool;
     /// Adds or removes the protection on one folder. A missing folder is
     /// not an error.
     ///
@@ -178,6 +180,16 @@ impl<D: Desktop> Enforcer for SpicetifyEnforcer<D> {
         let Some(paths) = self.desktop.user_paths() else {
             return;
         };
+        // Spotify's updater runs as the user and replaces the UI folder, so
+        // it gets a free hand until it exits. The check after that
+        // re-applies Spicetify and restores the protection.
+        if context.active && self.desktop.updating(&paths) {
+            if self.protected != Some(false) {
+                tracing::info!("Spotify is updating; lifting the protection until it finishes");
+                self.set_protected(&paths, false);
+            }
+            return;
+        }
         if context.active {
             self.maybe_apply(&paths, context.now);
         }
@@ -194,6 +206,7 @@ mod tests {
     #[derive(Default)]
     struct FakeDesktop {
         unpatched: bool,
+        updating: bool,
         protected: bool,
         log: Vec<String>,
     }
@@ -213,6 +226,10 @@ mod tests {
             } else {
                 PatchState::Patched
             }
+        }
+
+        fn updating(&mut self, _: &UserPaths) -> bool {
+            self.updating
         }
 
         fn set_protected(&mut self, path: &Path, protected: bool) -> io::Result<()> {
@@ -288,6 +305,24 @@ mod tests {
     }
 
     #[test]
+    fn spotify_updates_run_unprotected_then_restore() {
+        let now = Instant::now();
+        let mut enforcer = enforcer();
+        enforcer.check(&context(true, true, now));
+        assert!(enforcer.desktop.protected);
+        enforcer.desktop.updating = true;
+        enforcer.check(&context(true, true, now));
+        assert!(!enforcer.desktop.protected);
+        enforcer.check(&context(true, true, now));
+        enforcer.desktop.updating = false;
+        enforcer.desktop.unpatched = true;
+        enforcer.check(&context(true, true, now));
+        assert!(enforcer.desktop.log.last().unwrap().ends_with("=true"));
+        assert!(enforcer.desktop.protected);
+        assert!(!enforcer.desktop.unpatched);
+    }
+
+    #[test]
     fn failed_applies_back_off() {
         struct Failing(FakeDesktop, usize);
         impl Desktop for Failing {
@@ -296,6 +331,9 @@ mod tests {
             }
             fn patch_state(&self, _: &UserPaths) -> PatchState {
                 PatchState::Unpatched
+            }
+            fn updating(&mut self, _: &UserPaths) -> bool {
+                false
             }
             fn set_protected(&mut self, path: &Path, protected: bool) -> io::Result<()> {
                 self.0.set_protected(path, protected)

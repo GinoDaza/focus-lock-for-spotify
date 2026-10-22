@@ -5,6 +5,8 @@ use std::io;
 use std::path::Path;
 use std::time::Duration;
 
+use sysinfo::{ProcessRefreshKind, ProcessesToUpdate, System, UpdateKind};
+
 use crate::sddl;
 use crate::spicetify::{Desktop, PatchState, UserPaths};
 use crate::windows::{acl, user};
@@ -13,7 +15,14 @@ use crate::windows::{acl, user};
 /// seconds, so anything past this is stuck.
 const APPLY_TIMEOUT: Duration = Duration::from_mins(2);
 
-pub struct WindowsDesktop;
+/// Spotify's updater runs from `%LOCALAPPDATA%\Spotify\Update` under this
+/// name prefix.
+const UPDATER_PREFIX: &str = "spotify_installer";
+
+#[derive(Default)]
+pub struct WindowsDesktop {
+    system: System,
+}
 
 impl Desktop for WindowsDesktop {
     fn user_paths(&mut self) -> Option<UserPaths> {
@@ -28,6 +37,25 @@ impl Desktop for WindowsDesktop {
 
     fn patch_state(&self, paths: &UserPaths) -> PatchState {
         paths.patch_state()
+    }
+
+    fn updating(&mut self, paths: &UserPaths) -> bool {
+        let Some(local) = paths.spicetify_install.parent() else {
+            return false;
+        };
+        let update_dir = local.join("Spotify").join("Update");
+        self.system.refresh_processes_specifics(
+            ProcessesToUpdate::All,
+            true,
+            ProcessRefreshKind::nothing().with_exe(UpdateKind::OnlyIfNotSet),
+        );
+        self.system.processes().values().any(|process| {
+            let name = process.name().to_string_lossy().to_ascii_lowercase();
+            name.starts_with(UPDATER_PREFIX)
+                && process
+                    .exe()
+                    .is_some_and(|exe| exe.starts_with(&update_dir))
+        })
     }
 
     fn set_protected(&mut self, path: &Path, protected: bool) -> io::Result<()> {
