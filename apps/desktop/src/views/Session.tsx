@@ -192,7 +192,7 @@ function StartSession({
   const [allowlist, setAllowlist] = useState<Allowlist | null>(null);
   const [presets, setPresets] = useState<Preset[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [parts, setParts] = useState<DurationParts>({ days: 0, hours: 0, minutes: 3 });
+  const [parts, setParts] = useState<DurationParts>({ days: 0, hours: 0, minutes: 15 });
   const [mode, setMode] = useState<LockMode>("flexible");
   const [pending, setPending] = useState<Pending | null>(null);
   const action = useAction();
