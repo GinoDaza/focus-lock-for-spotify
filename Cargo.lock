@@ -1223,7 +1223,7 @@ checksum = "3f9eec918d3f24069decb9af1554cad7c880e2da24a9afd88aca000531ab82c1"
 
 [[package]]
 name = "focuslock-cli"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "chrono",
@@ -1235,7 +1235,7 @@ dependencies = [
 
 [[package]]
 name = "focuslock-client"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "focuslock-core",
@@ -1245,7 +1245,7 @@ dependencies = [
 
 [[package]]
 name = "focuslock-core"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "chrono",
  "serde",
@@ -1255,7 +1255,7 @@ dependencies = [
 
 [[package]]
 name = "focuslock-desktop"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "focuslock-client",
@@ -1269,7 +1269,7 @@ dependencies = [
 
 [[package]]
 name = "focuslock-protocol"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "focuslock-core",
  "serde",
@@ -1278,7 +1278,7 @@ dependencies = [
 
 [[package]]
 name = "focuslock-service"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "axum",
@@ -1302,7 +1302,7 @@ dependencies = [
 
 [[package]]
 name = "focuslock-setup"
-version = "0.2.0"
+version = "0.2.1"
 dependencies = [
  "anyhow",
  "serde",
