@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { api, errorMessage } from "../api";
 import type { Tab } from "../App";
+import { ConfirmExtend } from "../components/ConfirmExtend";
 import { ConfirmLock } from "../components/ConfirmLock";
 import { DurationInput } from "../components/DurationInput";
 import { Icon } from "../components/Icon";
@@ -57,6 +58,7 @@ function ActiveSession({
 }) {
   const action = useAction();
   const [confirming, setConfirming] = useState(false);
+  const [extending, setExtending] = useState<number | null>(null);
   const locked = session.mode === "locked";
   const progress = session.duration > 0 ? 1 - remaining / session.duration : 1;
 
@@ -97,7 +99,10 @@ function ActiveSession({
             <button
               key={label}
               disabled={action.busy}
-              onClick={() => void act(() => api.extend(seconds))}
+              onClick={() => {
+                if (locked) setExtending(seconds);
+                else void act(() => api.extend(seconds));
+              }}
             >
               {label}
             </button>
@@ -121,7 +126,7 @@ function ActiveSession({
             </Card>
           </>
         )}
-        {action.error && !confirming && <p className="error-text">{action.error}</p>}
+        {action.error && !confirming && extending === null && <p className="error-text">{action.error}</p>}
       </Section>
 
       <Section title="Allowed playlists">
@@ -141,6 +146,26 @@ function ActiveSession({
             void action.run(api.harden).then(async (ok) => {
               if (!ok) return;
               setConfirming(false);
+              await onChange();
+            })
+          }
+        />
+      )}
+
+      {extending !== null && (
+        <ConfirmExtend
+          seconds={extending}
+          remaining={remaining}
+          busy={action.busy}
+          error={action.error}
+          onClose={() => {
+            setExtending(null);
+            action.clearError();
+          }}
+          onConfirm={() =>
+            void action.run(() => api.extend(extending)).then(async (ok) => {
+              if (!ok) return;
+              setExtending(null);
               await onChange();
             })
           }
